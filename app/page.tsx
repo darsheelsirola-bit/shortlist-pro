@@ -57,7 +57,6 @@ export default function Home() {
 
   // Checkout Modal State
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi');
   const [utrNumber, setUtrNumber] = useState<string>('');
   const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string; amount: number; credits: number }>({
@@ -277,32 +276,6 @@ Professional Experience:
     setCheckoutModalOpen(false);
     triggerConfetti();
     showToast(`UPI Payment Verified! +${selectedPlan.credits} credits activated.`);
-  };
-
-  const handleCardCheckout = async () => {
-    if (!agreedToTerms) {
-      alert('Please agree to the Terms of Service to proceed.');
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: selectedPlan.name.toLowerCase().includes('unlimited') ? 'unlimited' : 'starter' }),
-      });
-      const data = await res.json();
-      if (data.url && !data.demo) {
-        window.location.href = data.url;
-        return;
-      }
-    } catch (e) {
-      console.warn('Simulation mode active.');
-    }
-
-    setCredits(prev => prev + selectedPlan.credits);
-    setCheckoutModalOpen(false);
-    showToast(`Payment verified. ${selectedPlan.credits} credits added.`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1143,31 +1116,8 @@ Professional Experience:
               <p className="text-xs text-[#86868b] mt-0.5">Direct UPI Transfer • 0% Commission</p>
             </div>
 
-            {/* Segmented Control */}
-            <div className="apple-segmented flex gap-1 mb-4 text-xs font-medium">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('upi')}
-                className={`flex-1 py-1.5 rounded-full transition flex items-center justify-center gap-1.5 ${
-                  paymentMethod === 'upi' ? 'bg-white text-[#1d1d1f] shadow-xs font-semibold' : 'text-[#86868b] hover:text-[#1d1d1f]'
-                }`}
-              >
-                <Smartphone className="w-3.5 h-3.5" /> Direct UPI
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('card')}
-                className={`flex-1 py-1.5 rounded-full transition flex items-center justify-center gap-1.5 ${
-                  paymentMethod === 'card' ? 'bg-white text-[#1d1d1f] shadow-xs font-semibold' : 'text-[#86868b] hover:text-[#1d1d1f]'
-                }`}
-              >
-                <CreditCard className="w-3.5 h-3.5" /> Card / Stripe
-              </button>
-            </div>
-
-            {/* UPI Payment Flow */}
-            {paymentMethod === 'upi' ? (
-              <div className="space-y-4">
+            {/* Direct UPI Payment Flow */}
+            <div className="space-y-4">
                 
                 {/* QR Code & Amount Card */}
                 <div className="liquid-glass-subtle p-4 rounded-2xl text-center flex flex-col items-center">
@@ -1254,42 +1204,6 @@ Professional Experience:
                   <span>Verify UTR & Activate ({selectedPlan.price})</span>
                 </button>
               </div>
-            ) : (
-              /* Card / Stripe Flow */
-              <div className="space-y-4">
-                <div className="liquid-glass-subtle p-4 rounded-2xl flex justify-between items-center">
-                  <div>
-                    <span className="font-semibold text-xs text-[#1d1d1f] block">{selectedPlan.name}</span>
-                    <span className="text-[10px] text-[#86868b] font-mono">+{selectedPlan.credits} Evaluations</span>
-                  </div>
-                  <div className="text-2xl font-bold text-[#1d1d1f]">
-                    {selectedPlan.price}
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2 liquid-glass-subtle p-2.5 rounded-xl">
-                  <input 
-                    type="checkbox" 
-                    id="legalAgreementCard" 
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-0.5 rounded border-[#d2d2d7] text-[#1d1d1f] focus:ring-[#1d1d1f]"
-                  />
-                  <label htmlFor="legalAgreementCard" className="text-[11px] text-[#86868b] leading-snug">
-                    I agree to the <Link href="/terms" target="_blank" className="text-[#0071e3] underline">Terms of Service</Link>.
-                  </label>
-                </div>
-
-                <button
-                  onClick={handleCardCheckout}
-                  disabled={!agreedToTerms}
-                  className="apple-btn-dark w-full py-3 text-xs flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Pay with Card ({selectedPlan.price})</span>
-                </button>
-              </div>
-            )}
 
             <p className="text-[10px] text-[#86868b] text-center mt-3">
               Encrypted transaction. Direct to bank via UPI.
