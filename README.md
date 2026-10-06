@@ -37,12 +37,12 @@
 - **Click-to-Insert Keyword Badges**: Single-tap insertion of missing skills directly into the resume draft.
 - **1-Click Plain-Text Export**: Generates and downloads a clean, ATS-safe `.txt` resume that parses without formatting errors on Workday, Greenhouse, Taleo, and Lever.
 
-### ⚡ 3. Direct UPI Payments (Zero Commission)
-- **Direct VPA-to-VPA Transfer**: 100% of customer payments land directly in the owner's bank account via UPI ID: **`darsheel.sirola@fam`**.
-- **0% Gateway Deductions**: Eliminates intermediary 2–3% transaction fees and complex merchant onboarding KYC hurdles.
+### ⚡ 3. Automated Razorpay Verification & Direct UPI
+- **Automated Razorpay Gateway Verification**: Cryptographic HMAC-SHA256 signature verification via `/api/razorpay/verify` guarantees zero forged or unverified payments.
+- **Instant Credit Activation**: Automatic activation immediately upon checkout completion across Google Pay, PhonePe, Paytm, BHIM, RuPay/Visa/Mastercard cards, and Netbanking.
+- **Direct VPA-to-VPA Transfer Option**: Direct UPI option with QR code to **`darsheel.sirola@fam`** with gateway verification.
 - **Dynamic Scannable QR Code**: Generates instant QR codes pre-encoded with the selected amount and receiving VPA.
 - **1-Tap Mobile Deep Link**: Supports instant checkout in Google Pay, PhonePe, Paytm, BHIM, and Cred.
-- **12-Digit UTR Verification**: Instant credit activation upon entering the transaction reference number.
 - **Ultra-Affordable INR Micro-Pricing**:
   - **₹49** one-time: 15 full ATS Audits (~₹3.20/audit)
   - **₹99 / month**: Unlimited Pro access

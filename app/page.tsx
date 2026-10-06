@@ -433,7 +433,7 @@ export default function LandingPage() {
                 </tr>
                 <tr className="hover:bg-white/40 transition-colors">
                   <td className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">Direct Indian Payment Flow</td>
-                  <td className="p-4 sm:p-5 font-medium text-emerald-700 bg-blue-50/30">✓ 100% Direct UPI (GPay, PhonePe, Paytm)</td>
+                  <td className="p-4 sm:p-5 font-medium text-emerald-700 bg-blue-50/30">✓ Razorpay Auto-Verify & Direct UPI (GPay, PhonePe, Cards)</td>
                   <td className="p-4 sm:p-5 text-[#86868b]">✕ International credit cards only</td>
                   <td className="p-4 sm:p-5 text-[#86868b]">✕ Card auto-charge traps</td>
                 </tr>
@@ -551,7 +551,7 @@ export default function LandingPage() {
             </div>
 
             <Link
-              href="/app"
+              href="/app?upgrade=starter"
               className="apple-btn-dark w-full py-3.5 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm"
             >
               <Smartphone className="w-3.5 h-3.5" />
@@ -584,7 +584,7 @@ export default function LandingPage() {
             </div>
 
             <Link
-              href="/app"
+              href="/app?upgrade=unlimited"
               className="apple-btn-primary w-full py-3.5 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md"
             >
               <Sparkles className="w-3.5 h-3.5" />
