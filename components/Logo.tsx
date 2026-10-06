@@ -49,9 +49,6 @@ export default function Logo({ className = '', size = 'md', showTagline = true }
           <span className={`font-semibold tracking-[-0.03em] text-[#1d1d1f] ${textSizes[size]}`}>
             Shortlist
           </span>
-          <span className="text-[10px] font-medium text-[#86868b] tracking-normal font-sans ml-0.5">
-            Pro
-          </span>
         </div>
         {showTagline && (
           <span className="text-[9px] uppercase font-semibold tracking-widest text-[#86868b] mt-0.5">

@@ -1,4 +1,4 @@
-# SHORTLIST Pro 
+# SHORTLIST 
 
 <div align="center">
 
@@ -15,7 +15,7 @@
 
 <br/>
 
-<img src="./public/shortlist_ad_poster.jpg" alt="SHORTLIST Pro Poster" width="340" style="border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);" />
+<img src="./public/shortlist_ad_poster.jpg" alt="SHORTLIST Poster" width="340" style="border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);" />
 
 </div>
 
@@ -167,5 +167,5 @@ Distributed under the **MIT License**. See [`LICENSE`](./LICENSE) for more infor
 ---
 
 <div align="center">
-  <sub>Designed for candidate excellence. Built with precision for <strong>SHORTLIST Pro</strong>.</sub>
+  <sub>Designed for candidate excellence. Built with precision for <strong>SHORTLIST</strong>.</sub>
 </div>

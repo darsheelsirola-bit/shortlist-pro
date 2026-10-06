@@ -360,7 +360,7 @@ Professional Experience:
                     }}
                     className="w-full text-left p-2 rounded-xl hover:bg-[#f5f5f7] text-[#0071e3] font-medium flex items-center justify-between"
                   >
-                    <span>Upgrade to Pro (₹99/mo)</span>
+                    <span>Upgrade to Unlimited (₹99/mo)</span>
                     <Sparkles className="w-3.5 h-3.5" />
                   </button>
                   <Link

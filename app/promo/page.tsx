@@ -54,7 +54,7 @@ const SCENES: Scene[] = [
   {
     id: 3,
     duration: 5.5,
-    title: 'Meet SHORTLIST Pro.',
+    title: 'Meet SHORTLIST.',
     subtitle: 'Watch your match score jump from 34% to 96% with Google X-Y-Z bullet rewrites.',
     voiceoverText: 'That is why we built Shortlist. In two seconds, it audits your resume against any job description, fixes missing keywords, and rewrites your bullets with executive impact.'
   },
@@ -387,7 +387,7 @@ export default function PromoVideoPage() {
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 36px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('SHORTLIST PRO', width * 0.5, height * 0.08);
+      ctx.fillText('SHORTLIST', width * 0.5, height * 0.08);
 
       ctx.fillStyle = '#86868b';
       ctx.font = '22px sans-serif';
@@ -614,7 +614,7 @@ export default function PromoVideoPage() {
                   <span className="font-black text-xs">S</span>
                 </div>
                 <span className="text-[11px] font-bold tracking-widest text-neutral-300 uppercase">
-                  SHORTLIST PRO
+                  SHORTLIST
                 </span>
               </div>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-neutral-400">
@@ -886,7 +886,7 @@ export default function PromoVideoPage() {
 It’s NOT your experience. It’s the ATS algorithm.
 Algorithms filter out your resume before human recruiters ever lay eyes on it.
 
-We built SHORTLIST Pro to fix this.
+We built SHORTLIST to fix this.
 ✅ 1-click ATS Keyword Gap Audit
 ✅ Google X-Y-Z Quantified Bullet Rewrites
 ✅ Boost your match score from 34% to 94%+

@@ -432,7 +432,7 @@ export default function LandingPage() {
             </span>
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-base text-[#1d1d1f]">Unlimited Pro</h3>
+                <h3 className="font-bold text-base text-[#1d1d1f]">Shortlist Unlimited</h3>
                 <span className="text-[10px] bg-white border border-white text-[#1d1d1f] px-2.5 py-0.5 rounded-full font-medium">Monthly</span>
               </div>
               <p className="text-xs text-[#86868b] mb-6">For active candidates applying across multiple companies.</p>
@@ -591,7 +591,7 @@ export default function LandingPage() {
               <strong>Warranty & Liability Disclaimer:</strong> Shortlist provides automated text suggestions for informational and formatting purposes only. We do not guarantee employment, interview callbacks, or hiring decisions. Maximum liability is strictly capped at the purchase price paid (maximum ₹99.00 INR). Users are exclusively responsible for the veracity of their job applications.
             </p>
             <div className="pt-2 flex flex-wrap justify-between items-center border-t border-[#d2d2d7]/40">
-              <p>Copyright &copy; 2026 Shortlist Pro. All rights reserved.</p>
+              <p>Copyright &copy; 2026 Shortlist. All rights reserved.</p>
               <p>Designed for candidate excellence.</p>
             </div>
           </div>

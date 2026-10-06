@@ -43,7 +43,7 @@ export async function POST(req: Request) {
           price_data: {
             currency: 'inr',
             product_data: {
-              name: isUnlimited ? 'Shortlist Pro — Unlimited Monthly' : 'Shortlist Pass — 15 ATS Audits',
+              name: isUnlimited ? 'Shortlist Unlimited — Monthly' : 'Shortlist Pass — 15 ATS Audits',
               description: isUnlimited 
                 ? 'Unlimited AI ATS resume audits, keyword gap tools, and cover letter tailoring.'
                 : '15 credits for precision ATS resume audits and metric upgrades.',
