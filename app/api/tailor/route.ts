@@ -29,14 +29,37 @@ const COMMON_SKILLS_DICTIONARY = [
 
 export async function POST(req: Request) {
   try {
-    const { resume, jobDescription, mode = 'tailor', enhanceGoal = 'metrics' } = await req.json();
+    const body = await req.json();
+    const { resume, jobDescription, mode = 'tailor', enhanceGoal = 'metrics' } = body || {};
 
-    if (!resume?.trim() || !jobDescription?.trim()) {
+    if (!resume || typeof resume !== 'string' || !jobDescription || typeof jobDescription !== 'string') {
       return NextResponse.json(
-        { error: 'Both resume and job description are required.' },
+        { error: 'Both resume and job description text strings are required.' },
         { status: 400 }
       );
     }
+
+    const trimmedResume = resume.trim();
+    const trimmedJob = jobDescription.trim();
+
+    if (trimmedResume.length === 0 || trimmedJob.length === 0) {
+      return NextResponse.json(
+        { error: 'Resume and job description cannot be empty.' },
+        { status: 400 }
+      );
+    }
+
+    // Security DoS Protection: enforce maximum length limit (30,000 chars each)
+    if (trimmedResume.length > 30000 || trimmedJob.length > 30000) {
+      return NextResponse.json(
+        { error: 'Input exceeds maximum supported size (30,000 characters). Please provide a concise resume.' },
+        { status: 413 }
+      );
+    }
+
+    // Mode & Goal whitelist validation
+    const safeMode = mode === 'enhance' ? 'enhance' : 'tailor';
+    const safeGoal = ['metrics', 'executive', 'concise'].includes(enhanceGoal) ? enhanceGoal : 'metrics';
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -47,17 +70,17 @@ export async function POST(req: Request) {
 Perform a strict, factually accurate comparison between the Candidate Resume and the Target Job Description.
 
 Target Job Description:
-${jobDescription}
+${trimmedJob}
 
 Candidate Resume:
-${resume}
+${trimmedResume}
 
 Instructions:
 1. Extract the actual target job title and company if mentioned.
 2. Determine which exact technical and professional skills from the job description are PRESENT in the resume, and which are completely MISSING.
 3. Calculate an authentic ATS Match Score (0-100%) based directly on the proportion of required qualifications the candidate satisfies.
 4. Rewrite the candidate's ACTUAL resume bullet points to strengthen action verbs and incorporate missing keywords cleanly without fabricating employer names or credentials.
-5. Mode: "${mode}". Focus: "${enhanceGoal}".
+5. Mode: "${safeMode}". Focus: "${safeGoal}".
 
 Return valid JSON strictly matching this structure without markdown fences or backticks:
 {
@@ -91,7 +114,9 @@ Return valid JSON strictly matching this structure without markdown fences or ba
           const geminiData = await res.json();
           const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
-            return NextResponse.json(JSON.parse(rawText));
+            const cleaned = rawText.replace(/```json\s*/gi, '').replace(/```\s*$/gi, '').trim();
+            const parsed = JSON.parse(cleaned);
+            return NextResponse.json(parsed);
           }
         }
       } catch (err) {
@@ -100,11 +125,11 @@ Return valid JSON strictly matching this structure without markdown fences or ba
     }
 
     // 2. High-Precision Deterministic NLP Analysis
-    const jobLower = jobDescription.toLowerCase();
-    const resumeLower = resume.toLowerCase();
+    const jobLower = trimmedJob.toLowerCase();
+    const resumeLower = trimmedResume.toLowerCase();
 
     // Extract Job Title heuristic
-    const firstLines = jobDescription.split('\n').filter(l => l.trim().length > 0);
+    const firstLines = trimmedJob.split('\n').filter(l => l.trim().length > 0);
     let detectedJobTitle = 'Target Role';
     if (firstLines.length > 0) {
       const titleCandidate = firstLines[0].replace(/[-–|].*$/, '').replace(/(requirements|responsibilities|description)/gi, '').trim();

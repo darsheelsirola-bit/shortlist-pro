@@ -78,6 +78,12 @@ shortlist-pro/
 │   │   │   └── route.ts       # Stripe fallback checkout route
 │   │   └── tailor/
 │   │       └── route.ts       # Deterministic ATS keyword analyzer & re-writer
+│   ├── app/
+│   │   └── page.tsx           # Dedicated Executive ATS Workstation & UPI modal
+│   ├── login/
+│   │   └── page.tsx           # Apple-style Sign In with 1-click Demo access
+│   ├── signup/
+│   │   └── page.tsx           # Apple-style Account Registration (+5 Free Credits)
 │   ├── privacy/
 │   │   └── page.tsx           # Privacy Policy with ephemeral processing disclosures
 │   ├── promo/
@@ -85,9 +91,10 @@ shortlist-pro/
 │   ├── terms/
 │   │   └── page.tsx           # Terms of Service & legal liability shield
 │   ├── globals.css            # VisionOS liquid glass, Apple styling & typography
-│   ├── layout.tsx             # Root layout, Google Fonts (Inter), SVG favicon
-│   └── page.tsx               # Main dual-workstation ATS application & UPI modal
+│   ├── layout.tsx             # Root layout, Google Fonts (Inter), AuthProvider
+│   └── page.tsx               # Dedicated Apple-style Product Landing Page
 ├── components/
+│   ├── AuthContext.tsx        # Persistent client session & credits state
 │   └── Logo.tsx               # Scalable Apple-style SVG monogram logo
 ├── public/
 │   └── shortlist_ad_poster.jpg # 9:16 vertical advertisement artwork

@@ -3,10 +3,20 @@ import Stripe from 'stripe';
 
 export async function POST(req: Request) {
   try {
-    const { plan, returnUrl } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { plan, returnUrl } = body || {};
     const stripeKey = process.env.STRIPE_SECRET_KEY;
 
-    const isUnlimited = plan === 'unlimited';
+    // Validate plan
+    const safePlan = plan === 'unlimited' ? 'unlimited' : 'starter';
+    const isUnlimited = safePlan === 'unlimited';
+
+    // Prevent open redirect attacks: only allow valid relative paths
+    let safeReturnUrl = '/app';
+    if (typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+      safeReturnUrl = returnUrl;
+    }
+
     // Ultra-Affordable Pricing: ₹49 (4900 paise) and ₹99 (9900 paise)
     const unitAmount = isUnlimited ? 9900 : 4900;
     const priceDisplay = isUnlimited ? '₹99' : '₹49';
@@ -16,9 +26,9 @@ export async function POST(req: Request) {
       return NextResponse.json({
         demo: true,
         message: 'Stripe keys not set in .env.local yet. Simulated INR checkout activated.',
-        plan: plan || 'starter',
+        plan: safePlan,
         priceDisplay,
-        url: `${returnUrl || '/'}?payment=success&plan=${plan || 'starter'}`
+        url: `${safeReturnUrl}?payment=success&plan=${safePlan}`
       });
     }
 

@@ -1,987 +1,468 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
-import confetti from 'canvas-confetti';
+import { useAuth } from '@/components/AuthContext';
 import { 
-  CheckCircle2, 
-  Copy, 
-  Check, 
-  FileText, 
-  Download, 
-  Sparkles, 
-  Lock, 
-  X, 
-  CreditCard, 
+  ArrowRight, 
   Search, 
+  Sparkles, 
+  Zap, 
+  CheckCircle2, 
+  ChevronRight, 
+  ShieldCheck, 
+  Smartphone, 
+  Download, 
+  FileText, 
+  TrendingUp, 
+  Users, 
+  Lock, 
+  Play, 
   Info,
   ChevronDown,
-  ChevronRight,
-  Trash2,
-  Users,
-  Smartphone,
-  QrCode,
-  Edit2,
-  ExternalLink,
-  ShieldCheck,
-  ArrowRight,
-  SlidersHorizontal,
-  CheckCheck
+  Layers,
+  Cpu
 } from 'lucide-react';
 
-export default function Home() {
-  const [jobDescription, setJobDescription] = useState('');
-  const [resume, setResume] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [enhanceLoading, setEnhanceLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [copiedSection, setCopiedSection] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'bullets' | 'comparison' | 'fullResume' | 'coverLetter'>('bullets');
-  const [credits, setCredits] = useState<number>(3);
-  const [enhanceGoal, setEnhanceGoal] = useState<'metrics' | 'executive' | 'concise'>('metrics');
-  
-  // Animated Score state
-  const [animatedScore, setAnimatedScore] = useState<number>(0);
-
-  // Toast notification
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // FAQ Accordion (First question open by default for immediate visibility)
+export default function LandingPage() {
+  const { user } = useAuth();
+  const [demoRole, setDemoRole] = useState<'engineering' | 'product' | 'growth'>('engineering');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // UPI Payment Configuration State (User's real receiving UPI ID)
-  const [merchantUpiId, setMerchantUpiId] = useState<string>('darsheel.sirola@fam');
-  const [editingUpiId, setEditingUpiId] = useState<boolean>(false);
-  const [tempUpiInput, setTempUpiInput] = useState<string>('darsheel.sirola@fam');
-
-  // Checkout Modal State
-  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
-  const [utrNumber, setUtrNumber] = useState<string>('');
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState<{ name: string; price: string; amount: number; credits: number }>({
-    name: 'Shortlist Pass (15 Audits)',
-    price: '₹49',
-    amount: 49,
-    credits: 15,
-  });
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedUpi = localStorage.getItem('shortlist_merchant_upi');
-      if (savedUpi) {
-        setMerchantUpiId(savedUpi);
-        setTempUpiInput(savedUpi);
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('payment') === 'success') {
-        setCredits(prev => prev + 15);
-        showToast('Payment verified. 15 credits unlocked.');
-      }
-    }
-  }, []);
-
-  const saveCustomUpi = () => {
-    if (!tempUpiInput.trim() || !tempUpiInput.includes('@')) {
-      alert('Please enter a valid UPI ID (e.g. yourname@okhdfcbank or yourname@paytm)');
-      return;
-    }
-    setMerchantUpiId(tempUpiInput.trim());
-    localStorage.setItem('shortlist_merchant_upi', tempUpiInput.trim());
-    setEditingUpiId(false);
-    showToast('UPI ID updated.');
-  };
-
-  // Animate score counter smoothly like Apple Health Activity ring
-  useEffect(() => {
-    if (result?.matchScore) {
-      let start = 0;
-      const target = result.matchScore;
-      const duration = 750;
-      const intervalTime = 16;
-      const steps = duration / intervalTime;
-      const increment = target / steps;
-
-      const timer = setInterval(() => {
-        start += increment;
-        if (start >= target) {
-          setAnimatedScore(target);
-          clearInterval(timer);
-          if (target >= 80) {
-            triggerConfetti();
-          }
-        } else {
-          setAnimatedScore(Math.floor(start));
-        }
-      }, intervalTime);
-
-      return () => clearInterval(timer);
-    } else {
-      setAnimatedScore(0);
-    }
-  }, [result]);
-
-  const triggerConfetti = () => {
-    try {
-      confetti({
-        particleCount: 45,
-        spread: 65,
-        origin: { y: 0.7 },
-        colors: ['#0071e3', '#1d1d1f', '#86868b', '#0077ed', '#34c759']
-      });
-    } catch {}
-  };
-
-  const loadSampleData = () => {
-    setJobDescription(
-`Senior Technical Product Manager — Data & Infrastructure
-Requirements:
-• 5+ years managing enterprise cloud infrastructure or SaaS platform deliverables.
-• Expertise in Agile/Scrum sprint cycles, backlog grooming, and user story mapping.
-• Track record in cross-functional alignment across software engineering, UX, and sales.
-• Proficiency in SQL, Python data analytics, CI/CD pipelines, and cloud computing (AWS/GCP).
-• Direct accountability for customer retention, CAC reduction, and quarterly revenue KPIs.`
-    );
-    setResume(
-`Alex Morgan — Product Specialist
-Professional Experience:
-• Managed software releases for enterprise business tools.
-• Worked with engineering and design leads to coordinate product feature roadmaps.
-• Tracked product usage data using spreadsheets and basic analytics reporting.
-• Organized weekly team sprint reviews and daily standup syncs.
-• Communicated quarterly release updates to department leaders and stakeholders.`
-    );
-    showToast('Sample documents loaded.');
-  };
-
-  const clearForm = () => {
-    setJobDescription('');
-    setResume('');
-    setResult(null);
-    showToast('Form cleared.');
-  };
-
-  const handleAnalyze = async () => {
-    if (!jobDescription.trim() || !resume.trim()) {
-      alert('Please enter both the Job Description and your Resume text.');
-      return;
-    }
-
-    if (jobDescription.trim().length < 40 || resume.trim().length < 40) {
-      alert('Please provide more detailed text for both fields (minimum 40 characters) to ensure an accurate ATS audit.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch('/api/tailor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobDescription, mode: 'tailor' }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setResult(data);
-        if (credits > 0) setCredits(prev => prev - 1);
-        showToast('Audit complete.');
-      } else {
-        alert(data.error || 'Failed to process audit.');
-      }
-    } catch {
-      alert('Unable to connect to analysis server.');
-    } finally {
-      setLoading(false);
+  const demoTransformations = {
+    engineering: {
+      title: 'Senior Fullstack / Cloud Engineer',
+      scoreBefore: 38,
+      scoreAfter: 94,
+      missing: ['Kubernetes', 'CI/CD Pipelines', 'Distributed Microservices', 'p99 Latency'],
+      beforeBullet: 'Responsible for backend APIs and fixing software bugs in our web application.',
+      afterBullet: 'Architected distributed microservices in Next.js & Node.js, reducing p99 API latency by 42% across 1.2M active users.'
+    },
+    product: {
+      title: 'Senior Product Manager',
+      scoreBefore: 42,
+      scoreAfter: 96,
+      missing: ['A/B Testing', 'CAC Reduction', 'Backlog Grooming', 'GTM Strategy'],
+      beforeBullet: 'Worked with designers and engineers to launch product feature updates.',
+      afterBullet: 'Spearheaded GTM strategy and iterative A/B testing frameworks, reducing CAC by 28% and driving $840K in incremental ARR.'
+    },
+    growth: {
+      title: 'Growth & Performance Marketing Lead',
+      scoreBefore: 35,
+      scoreAfter: 92,
+      missing: ['Funnel Optimization', 'ROAS', 'HubSpot / Salesforce', 'LTV/CAC Ratio'],
+      beforeBullet: 'Ran paid ad campaigns on Google and social media platforms to generate leads.',
+      afterBullet: 'Orchestrated full-funnel paid acquisition engine across Google & Meta, scaling ROAS from 1.8x to 4.2x with 34% lower blended CPL.'
     }
   };
 
-  const handleDeepEnhance = async () => {
-    if (!jobDescription.trim() || !resume.trim()) {
-      alert('Please enter both the Job Description and your Resume text.');
-      return;
-    }
-
-    setEnhanceLoading(true);
-    try {
-      const res = await fetch('/api/tailor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobDescription, mode: 'enhance', enhanceGoal }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setResult(data);
-        setActiveTab('bullets');
-        if (credits > 0) setCredits(prev => prev - 1);
-        showToast('Bullets upgraded with quantifiable metrics.');
-      } else {
-        alert(data.error || 'Failed to enhance resume.');
-      }
-    } catch {
-      alert('Unable to connect to optimization server.');
-    } finally {
-      setEnhanceLoading(false);
-    }
-  };
-
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedSection(id);
-    showToast('Copied to clipboard.');
-    setTimeout(() => setCopiedSection(null), 2000);
-  };
-
-  const downloadResume = () => {
-    if (!result?.fullOptimizedResume) return;
-    const element = document.createElement('a');
-    const file = new Blob([result.fullOptimizedResume], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'SHORTLIST_Optimized_Resume.txt';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    showToast('Resume downloaded (.txt).');
-  };
-
-  const injectKeywords = (kw?: string) => {
-    const toInject = kw ? [kw] : result?.missingKeywords;
-    if (!toInject || toInject.length === 0) return;
-    const kwText = `\n\nADDITIONAL COMPETENCIES: ${toInject.join(' • ')}`;
-    setResume(prev => prev + kwText);
-    showToast(`Appended ${toInject.length} keyword(s) to draft.`);
-  };
-
-  const openCheckout = (name: string, price: string, amount: number, planCredits: number) => {
-    setSelectedPlan({ name, price, amount, credits: planCredits });
-    setUtrNumber('');
-    setCheckoutModalOpen(true);
-  };
-
-  const verifyUpiPayment = () => {
-    if (!agreedToTerms) {
-      alert('Please agree to the Terms of Service to proceed.');
-      return;
-    }
-    if (!utrNumber.trim() || utrNumber.trim().length < 6) {
-      alert('Please enter your 12-digit UPI UTR / Reference number from GPay/PhonePe/Paytm to activate credits.');
-      return;
-    }
-
-    setCredits(prev => prev + selectedPlan.credits);
-    setCheckoutModalOpen(false);
-    triggerConfetti();
-    showToast(`UPI Payment Verified! +${selectedPlan.credits} credits activated.`);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      handleAnalyze();
-    }
-  };
-
-  const wordCount = (str: string) => str.trim() ? str.trim().split(/\s+/).length : 0;
-
-  // Split original user bullets for before-after comparison
-  const originalBullets = resume
-    .split(/\n+/)
-    .map(line => line.trim())
-    .filter(line => line.length > 15 && !line.toLowerCase().includes('experience:') && !line.toLowerCase().includes('education:'))
-    .slice(0, 4);
-
-  // Generate real UPI deep link and QR Code URL
-  const upiDeepLink = `upi://pay?pa=${encodeURIComponent(merchantUpiId)}&pn=Shortlist&am=${selectedPlan.amount}&cu=INR&tn=${encodeURIComponent(selectedPlan.name)}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=4&data=${encodeURIComponent(upiDeepLink)}`;
+  const currentDemo = demoTransformations[demoRole];
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f] flex flex-col font-sans selection:bg-[#1d1d1f] selection:text-white relative overflow-hidden">
       
-      {/* Background Liquid Ambient Light Orbs (Refract through Liquid Glass cards) */}
+      {/* Background Liquid Ambient Light Orbs */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Soft Sky Blue Orb */}
-        <div className="absolute -top-[10%] left-[15%] w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-[#cce5ff]/60 to-[#99ccff]/40 blur-[130px] animate-floatSlow"></div>
-        {/* Soft Lavender / Amethyst Orb */}
-        <div className="absolute top-[35%] right-[10%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-[#ebd4fd]/50 to-[#d6b4fc]/35 blur-[140px] animate-floatReverse"></div>
-        {/* Subtle Pearlescent Peach Orb */}
-        <div className="absolute bottom-[10%] left-[20%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-[#ffe6dc]/45 to-[#ffd4c4]/30 blur-[150px] animate-liquidPulse"></div>
+        <div className="absolute -top-[10%] left-[20%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-[#cce5ff]/50 to-[#99ccff]/30 blur-[140px] animate-floatSlow" />
+        <div className="absolute top-[35%] right-[10%] w-[550px] h-[550px] rounded-full bg-gradient-to-br from-[#ebd4fd]/45 to-[#d6b4fc]/30 blur-[140px] animate-floatReverse" />
+        <div className="absolute bottom-[10%] left-[15%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-[#ffe6dc]/40 to-[#ffd4c4]/25 blur-[150px] animate-liquidPulse" />
       </div>
 
-      {/* Floating Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-7 left-1/2 -translate-x-1/2 z-50 bg-[#1d1d1f]/90 backdrop-blur-xl text-white px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-medium animate-appleScale border border-white/15">
-          <CheckCircle2 className="w-4 h-4 text-[#34c759] shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Apple Store Style Ribbon Announcement */}
-      <div className="relative z-10 bg-[#f5f5f7]/70 backdrop-blur-md border-b border-[#d2d2d7]/50 py-2.5 px-4 text-center text-xs text-[#1d1d1f] flex items-center justify-center gap-1.5">
-        <span>Get the Shortlist Pass starting at just <strong>₹49</strong>. Instant UPI transfer with Google Pay, PhonePe & Paytm.</span>
-        <a href="#pricing" className="text-[#0071e3] hover:underline font-medium inline-flex items-center ml-1">
-          Buy now <ChevronRight className="w-3 h-3 inline ml-0.5" />
-        </a>
+      {/* Top Apple Ribbon Announcement */}
+      <div className="relative z-10 bg-[#f5f5f7]/70 backdrop-blur-md border-b border-[#d2d2d7]/50 py-2 px-4 text-center text-xs text-[#1d1d1f] flex items-center justify-center gap-1.5">
+        <span>Instant UPI transfer starting at just <strong>₹49</strong>. Google Pay, PhonePe & Paytm accepted directly.</span>
+        <Link href="/app" className="text-[#0071e3] hover:underline font-medium inline-flex items-center ml-1">
+          Open Workstation <ChevronRight className="w-3 h-3 inline ml-0.5" />
+        </Link>
       </div>
 
       {/* Apple Frosted Glass Sticky Navigation */}
       <header className="apple-nav sticky top-0 z-40 transition-all duration-300">
-        <div className="max-w-5xl mx-auto px-6 h-12 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex justify-between items-center">
           <Link href="/" className="group flex items-center">
             <Logo size="sm" showTagline={false} />
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8 text-xs text-[#1d1d1f]/80 font-normal">
-            <a href="#tool" className="hover:text-[#1d1d1f] transition-colors">Overview</a>
-            <a href="#how-it-works" className="hover:text-[#1d1d1f] transition-colors">Process</a>
+            <a href="#how-it-works" className="hover:text-[#1d1d1f] transition-colors">How It Works</a>
+            <a href="#transformation" className="hover:text-[#1d1d1f] transition-colors">Before & After</a>
+            <a href="#features" className="hover:text-[#1d1d1f] transition-colors">Features</a>
             <a href="#pricing" className="hover:text-[#1d1d1f] transition-colors">Pricing</a>
             <a href="#faq" className="hover:text-[#1d1d1f] transition-colors">Questions</a>
-            <Link href="/terms" className="hover:text-[#1d1d1f] transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-[#1d1d1f] transition-colors">Privacy</Link>
           </nav>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-block text-[11px] text-[#86868b] font-mono">
-              {credits} Credits
-            </span>
+            {user && user.email !== 'guest@shortlist.internal' ? (
+              <Link
+                href="/app"
+                className="px-3.5 py-1.5 rounded-full bg-white/90 border border-[#d2d2d7]/80 text-xs font-semibold text-[#1d1d1f] hover:bg-white transition-all shadow-2xs flex items-center gap-2"
+              >
+                <span>{user.name}</span>
+                <span className="w-2 h-2 rounded-full bg-[#34c759]" />
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-xs text-[#1d1d1f]/80 hover:text-[#1d1d1f] font-medium px-2 py-1 transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
 
-            <button
-              onClick={() => openCheckout('Shortlist Pass (15 Audits)', '₹49', 49, 15)}
-              className="apple-btn-primary px-3.5 py-1 text-xs shadow-xs"
+            <Link
+              href="/app"
+              className="apple-btn-primary px-4 py-1.5 text-xs shadow-xs flex items-center gap-1.5"
             >
-              Get Credits — ₹49
-            </button>
+              <span>Launch Workstation</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Cinematic Apple Hero Section (Perfect Proportions) */}
-      <section className="relative z-10 text-center pt-24 pb-16 px-4 max-w-4xl mx-auto animate-appleFadeUp">
-        <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-white/80 text-[#1d1d1f] text-xs px-4 py-1.5 rounded-full mb-6 font-medium shadow-xs">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#0071e3] animate-pulse"></span>
-          <span>Shortlist Pro • Verifiable ATS Engine</span>
+      {/* Main Hero Section */}
+      <section className="relative z-10 pt-20 pb-16 px-6 text-center max-w-5xl mx-auto w-full">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/80 border border-[#d2d2d7]/80 shadow-2xs text-xs font-medium text-[#1d1d1f] mb-6 animate-appleFadeUp">
+          <span className="w-2 h-2 rounded-full bg-[#0071e3] animate-pulse" />
+          <span>Precision ATS Resume Optimizer & Bullet Re-Writer</span>
         </div>
-        
-        <h1 className="text-5xl sm:text-7xl font-bold tracking-[-0.035em] text-[#1d1d1f] mb-6 leading-[1.08]">
-          Engineered to pass. <br />
-          Impossible to filter.
+
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[#1d1d1f] leading-[1.08] mb-6 max-w-4xl mx-auto">
+          Get on the Shortlist.
         </h1>
 
-        <p className="text-[#86868b] text-lg sm:text-xl max-w-xl mx-auto mb-10 font-normal leading-relaxed tracking-[-0.01em]">
-          Screening algorithms reject 75% of applicants before human review. Shortlist audits keyword density, upgrades quantifiable impact, and puts your resume on the interview shortlist.
+        <p className="text-base sm:text-xl text-[#86868b] max-w-2xl mx-auto font-normal leading-relaxed mb-8">
+          Over 75% of qualified resumes are rejected within 3 seconds by applicant tracking bots. 
+          SHORTLIST audits your resume against corporate algorithms and transforms your bullet points into quantifiable executive achievements.
         </p>
 
-        {/* Dual Apple Pill Actions */}
-        <div className="flex items-center justify-center gap-4 text-sm font-normal">
-          <button
-            onClick={loadSampleData}
-            className="apple-btn-primary px-5 py-2.5 text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-sm"
+        <div className="flex flex-wrap items-center justify-center gap-3.5 mb-14">
+          <Link
+            href="/app"
+            className="apple-btn-primary px-7 py-3.5 text-sm font-semibold flex items-center gap-2 shadow-md hover:scale-[1.02] transition-transform"
           >
-            <span>Load Sample Audit</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-          <a
-            href="#tool"
-            className="text-[#0071e3] hover:underline text-xs sm:text-sm inline-flex items-center font-medium"
+            <span>Audit Your Resume Free</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+
+          <Link
+            href="/promo"
+            className="px-6 py-3.5 rounded-full bg-white/90 hover:bg-white text-xs font-semibold text-[#1d1d1f] border border-[#d2d2d7]/80 transition-all shadow-xs flex items-center gap-2"
           >
-            Explore the tool <ChevronRight className="w-3.5 h-3.5 inline ml-0.5" />
-          </a>
+            <Play className="w-3.5 h-3.5 text-[#0071e3] fill-current" />
+            <span>Watch 22s Product Reel</span>
+          </Link>
         </div>
-      </section>
 
-      {/* Main Interactive Workstation (Liquid Frosted Glass & Symmetrical Proportions) */}
-      <section id="tool" className="relative z-10 max-w-6xl mx-auto w-full px-4 pb-24 grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1">
-        
-        {/* Left Column: Input Hardware Surface */}
-        <div className="liquid-glass rounded-[32px] p-8 flex flex-col justify-between">
-          <div className="space-y-6">
-            
-            {/* Window Titlebar */}
-            <div className="flex items-center justify-between pb-4 border-b border-[#e5e5ea]/80">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#ff5f56]/90 inline-block shadow-2xs"></span>
-                <span className="w-3 h-3 rounded-full bg-[#ffbd2e]/90 inline-block shadow-2xs"></span>
-                <span className="w-3 h-3 rounded-full bg-[#27c93f]/90 inline-block shadow-2xs"></span>
-                <span className="text-xs font-semibold text-[#1d1d1f] ml-1.5 tracking-tight">Source Requirements</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={loadSampleData} 
-                  className="text-xs text-[#0071e3] hover:underline font-medium transition"
-                >
-                  Load Sample
-                </button>
-                <button 
-                  onClick={clearForm} 
-                  className="text-xs text-[#86868b] hover:text-[#1d1d1f] transition"
-                  title="Clear inputs"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Target Job Description */}
+        {/* Live Interactive Product Teaser Preview */}
+        <div className="liquid-glass rounded-[36px] p-6 sm:p-10 shadow-2xl border border-white text-left max-w-4xl mx-auto">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e5e5ea] pb-6 mb-6">
             <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-medium text-[#1d1d1f]">
-                  Target Job Description
-                </label>
-                <span className="text-[10px] text-[#86868b] font-mono">{wordCount(jobDescription)} words</span>
-              </div>
-              <textarea
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Paste the target job description or requirements here..."
-                className="w-full h-36 bg-white/70 backdrop-blur-md border border-[#d2d2d7]/50 rounded-2xl p-4 text-xs sm:text-sm focus:outline-none focus:border-[#0071e3] focus:bg-white text-[#1d1d1f] resize-none transition-all placeholder:text-[#86868b]/70 font-sans shadow-inner"
-              />
-            </div>
-
-            {/* Current Resume */}
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-medium text-[#1d1d1f]">
-                  Current Resume Experience
-                </label>
-                <span className="text-[10px] text-[#86868b] font-mono">{wordCount(resume)} words</span>
-              </div>
-              <textarea
-                value={resume}
-                onChange={(e) => setResume(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Paste your current resume bullet points or experience summary..."
-                className="w-full h-44 bg-white/70 backdrop-blur-md border border-[#d2d2d7]/50 rounded-2xl p-4 text-xs sm:text-sm focus:outline-none focus:border-[#0071e3] focus:bg-white text-[#1d1d1f] resize-none transition-all placeholder:text-[#86868b]/70 font-sans shadow-inner"
-              />
-              <div className="flex justify-between items-center mt-1 text-[10px] text-[#86868b]">
-                <span>Press <kbd className="bg-white/80 border border-[#d2d2d7]/80 px-1.5 py-0.5 rounded font-mono text-[9px] text-[#1d1d1f] shadow-2xs">⌘ + Enter</kbd> to audit</span>
-              </div>
-            </div>
-
-            {/* Segmented Control for Strategy */}
-            <div className="pt-1">
-              <span className="text-[11px] font-medium text-[#86868b] block mb-2">
-                Enhancement Strategy
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#0071e3] block mb-1">
+                Interactive Demonstration
               </span>
-              <div className="apple-segmented grid grid-cols-3 gap-1">
+              <h2 className="text-lg sm:text-xl font-bold text-[#1d1d1f]">
+                {currentDemo.title}
+              </h2>
+            </div>
+
+            {/* Role Switcher */}
+            <div className="apple-segmented flex gap-1 text-xs">
+              {(['engineering', 'product', 'growth'] as const).map((role) => (
                 <button
-                  type="button"
-                  onClick={() => setEnhanceGoal('metrics')}
-                  className={`text-xs py-1.5 px-2 rounded-full font-medium transition text-center ${
-                    enhanceGoal === 'metrics' 
-                      ? 'bg-white text-[#1d1d1f] shadow-xs font-semibold' 
+                  key={role}
+                  onClick={() => setDemoRole(role)}
+                  className={`px-3 py-1.5 rounded-full capitalize transition-all ${
+                    demoRole === role 
+                      ? 'bg-white text-[#1d1d1f] font-semibold shadow-xs' 
                       : 'text-[#86868b] hover:text-[#1d1d1f]'
                   }`}
                 >
-                  Metrics
+                  {role}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setEnhanceGoal('executive')}
-                  className={`text-xs py-1.5 px-2 rounded-full font-medium transition text-center ${
-                    enhanceGoal === 'executive' 
-                      ? 'bg-white text-[#1d1d1f] shadow-xs font-semibold' 
-                      : 'text-[#86868b] hover:text-[#1d1d1f]'
-                  }`}
-                >
-                  Executive Tone
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEnhanceGoal('concise')}
-                  className={`text-xs py-1.5 px-2 rounded-full font-medium transition text-center ${
-                    enhanceGoal === 'concise' 
-                      ? 'bg-white text-[#1d1d1f] shadow-xs font-semibold' 
-                      : 'text-[#86868b] hover:text-[#1d1d1f]'
-                  }`}
-                >
-                  Concise
-                </button>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <button
-              onClick={handleAnalyze}
-              disabled={loading || enhanceLoading}
-              className="w-full bg-white/80 hover:bg-white text-[#1d1d1f] font-medium py-3 rounded-full text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 border border-white/90 shadow-xs"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-[#1d1d1f] border-t-transparent"></span>
-                  Auditing...
-                </span>
-              ) : (
-                <>
-                  <Search className="w-3.5 h-3.5 text-[#1d1d1f]" />
-                  <span>Audit ATS Match</span>
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={handleDeepEnhance}
-              disabled={loading || enhanceLoading}
-              className="w-full apple-btn-primary py-3 text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
-            >
-              {enhanceLoading ? (
-                <span className="flex items-center gap-2">
-                  <span className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></span>
-                  Upgrading...
-                </span>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
-                  <span>Optimize for Shortlist</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Right Column: Output Porcelain Card */}
-        <div className="liquid-glass rounded-[32px] p-8 flex flex-col justify-between min-h-[580px]">
-          <div>
-            {/* Card Header & Apple Tabs */}
-            <div className="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-[#e5e5ea]/80 gap-3">
-              <span className="text-xs font-semibold text-[#1d1d1f] tracking-tight flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#0071e3] shadow-xs"></span>
-                Audit Findings & Output
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            {/* Visual Circular Gauge */}
+            <div className="md:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-white/80 border border-white text-center shadow-2xs">
+              <div className="relative w-36 h-36 flex items-center justify-center mb-3">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" stroke="#e5e5ea" strokeWidth="8" fill="none" />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="40" 
+                    stroke="#34c759" 
+                    strokeWidth="8" 
+                    strokeDasharray={251.2}
+                    strokeDashoffset={251.2 * (1 - (currentDemo.scoreAfter / 100))}
+                    strokeLinecap="round" 
+                    fill="none" 
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-black text-[#1d1d1f]">{currentDemo.scoreAfter}%</span>
+                  <span className="text-[9px] uppercase font-bold text-[#34c759] tracking-wider">SHORTLIST MATCH</span>
+                </div>
+              </div>
+              <span className="text-xs text-[#86868b]">
+                Previous draft: <strong className="text-red-500 line-through">{currentDemo.scoreBefore}%</strong> ➔ Upgraded to <strong className="text-[#34c759]">{currentDemo.scoreAfter}%</strong>
               </span>
-
-              {result && (
-                <div className="apple-segmented flex gap-1">
-                  <button 
-                    onClick={() => setActiveTab('bullets')}
-                    className={`text-xs px-3 py-1 rounded-full font-medium transition ${
-                      activeTab === 'bullets' ? 'bg-white text-[#1d1d1f] shadow-xs' : 'text-[#86868b] hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    Bullets
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('comparison')}
-                    className={`text-xs px-3 py-1 rounded-full font-medium transition ${
-                      activeTab === 'comparison' ? 'bg-white text-[#1d1d1f] shadow-xs' : 'text-[#86868b] hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    Before / After
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('fullResume')}
-                    className={`text-xs px-3 py-1 rounded-full font-medium transition ${
-                      activeTab === 'fullResume' ? 'bg-white text-[#1d1d1f] shadow-xs' : 'text-[#86868b] hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    Full Text (.txt)
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('coverLetter')}
-                    className={`text-xs px-3 py-1 rounded-full font-medium transition ${
-                      activeTab === 'coverLetter' ? 'bg-white text-[#1d1d1f] shadow-xs' : 'text-[#86868b] hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    Cover Letter
-                  </button>
-                </div>
-              )}
             </div>
 
-            {/* Empty State */}
-            {!result && !loading && !enhanceLoading && (
-              <div className="h-[460px] border border-dashed border-[#d2d2d7] rounded-[24px] flex flex-col items-center justify-center text-[#86868b] p-8 text-center gap-3.5 bg-white/40 backdrop-blur-sm">
-                <FileText className="w-10 h-10 text-[#86868b]/60 stroke-1" />
-                <div>
-                  <h3 className="font-semibold text-[#1d1d1f] text-sm">Ready for Analysis</h3>
-                  <p className="text-xs text-[#86868b] max-w-sm mt-1 leading-relaxed">
-                    Paste your requirements on the left, or tap <span className="underline cursor-pointer text-[#0071e3] font-medium" onClick={loadSampleData}>Load Sample</span> to run an algorithmic ATS audit.
-                  </p>
-                </div>
+            {/* Before vs After Diff Preview */}
+            <div className="md:col-span-7 space-y-3">
+              <div className="p-3.5 rounded-2xl bg-red-50/60 border border-red-500/20 space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 block">
+                  Original Draft (Filtered by ATS)
+                </span>
+                <p className="text-xs text-[#86868b] line-through leading-relaxed">
+                  {currentDemo.beforeBullet}
+                </p>
               </div>
-            )}
 
-            {/* Loading Shimmer State */}
-            {(loading || enhanceLoading) && (
-              <div className="h-[460px] flex flex-col justify-center items-center p-6 space-y-4">
-                <div className="w-10 h-10 rounded-full border-2 border-[#0071e3] border-t-transparent animate-spin mb-2"></div>
-                <div className="text-center space-y-1">
-                  <p className="font-semibold text-[#1d1d1f] text-sm">
-                    {enhanceLoading ? 'Reconstructing accomplishment bullet points...' : 'Evaluating qualification density against ATS parameters...'}
-                  </p>
-                  <p className="text-xs text-[#86868b]">Checking recruiter algorithms and keyword overlap.</p>
-                </div>
+              <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-500/25 space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">
+                  SHORTLIST Upgrade (Google X-Y-Z Formula)
+                </span>
+                <p className="text-xs text-[#1d1d1f] font-medium leading-relaxed">
+                  {currentDemo.afterBullet}
+                </p>
               </div>
-            )}
 
-            {/* Result Display */}
-            {result && !loading && !enhanceLoading && (
-              <div className="space-y-4 animate-appleFadeUp">
-                
-                {/* Score Summary Box with Apple Activity Ring */}
-                <div className="liquid-glass-subtle p-5 rounded-[24px] flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex-1 min-w-[200px]">
-                    <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider block">
-                      Target Role: {result.targetJobTitle}
+              <div className="pt-2 flex items-center justify-between text-xs">
+                <div className="flex flex-wrap gap-1.5">
+                  {currentDemo.missing.slice(0, 3).map((kw, i) => (
+                    <span key={i} className="px-2 py-0.5 rounded-full bg-blue-500/10 text-[#0071e3] text-[10px] font-semibold">
+                      ✓ {kw}
                     </span>
-                    <p className="text-xs text-[#1d1d1f] mt-1 font-medium leading-relaxed">
-                      {result.verdict}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    {/* Apple Activity Style Ring */}
-                    <div className="relative w-16 h-16 flex items-center justify-center">
-                      <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
-                        <path
-                          className="text-[#e5e5ea]"
-                          stroke="currentColor"
-                          strokeWidth="3.2"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                        <path
-                          className="text-[#0071e3] transition-all duration-700 ease-out"
-                          strokeDasharray={`${animatedScore}, 100`}
-                          stroke="currentColor"
-                          strokeWidth="3.2"
-                          strokeLinecap="round"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                      </svg>
-                      <div className="absolute flex flex-col items-center">
-                        <span className="text-base font-bold text-[#1d1d1f] leading-none">
-                          {animatedScore}%
-                        </span>
-                        <span className="text-[8px] font-medium text-[#86868b] uppercase">Match</span>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-
-                {/* Keyword Analysis: Present vs Missing */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  
-                  {/* Confirmed Keywords Found */}
-                  <div className="liquid-glass-subtle p-4 rounded-[22px]">
-                    <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider block mb-2">
-                      Confirmed in Resume ({result.presentKeywords?.length || 0})
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {result.presentKeywords?.length > 0 ? (
-                        result.presentKeywords.map((kw: string, i: number) => (
-                          <span key={i} className="text-[11px] bg-white/90 border border-white text-[#1d1d1f] px-2.5 py-1 rounded-full font-medium shadow-2xs">
-                            ✓ {kw}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-[11px] text-[#86868b]">None detected</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Missing Keywords Box with Click-to-Inject */}
-                  <div className="liquid-glass-subtle p-4 rounded-[22px]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider">
-                        Missing Keywords ({result.missingKeywords?.length || 0})
-                      </span>
-                      <button 
-                        onClick={() => injectKeywords()}
-                        className="text-[10px] text-[#0071e3] hover:underline font-semibold"
-                      >
-                        + Append All
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {result.missingKeywords?.map((kw: string, i: number) => (
-                        <span 
-                          key={i} 
-                          onClick={() => injectKeywords(kw)}
-                          title="Click to insert this keyword into your draft"
-                          className="text-[11px] bg-white/90 border border-white text-[#1d1d1f] px-2.5 py-1 rounded-full font-medium cursor-pointer hover:border-[#0071e3] hover:text-[#0071e3] transition shadow-2xs"
-                        >
-                          + {kw}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Tab 1: Enhanced Bullets */}
-                {activeTab === 'bullets' && (
-                  <div className="space-y-3">
-                    <div className="liquid-glass-subtle p-4 rounded-[22px]">
-                      <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider">
-                          Tailored Executive Summary
-                        </span>
-                        <button 
-                          onClick={() => copyToClipboard(result.tailoredSummary, 'summary')}
-                          className="text-[#0071e3] hover:underline text-xs flex items-center gap-1 font-medium"
-                        >
-                          {copiedSection === 'summary' ? <Check className="w-3.5 h-3.5 text-[#34c759]" /> : <Copy className="w-3.5 h-3.5" />}
-                          <span>{copiedSection === 'summary' ? 'Copied' : 'Copy'}</span>
-                        </button>
-                      </div>
-                      <p className="text-xs text-[#1d1d1f] leading-relaxed">
-                        {result.tailoredSummary}
-                      </p>
-                    </div>
-
-                    <div className="liquid-glass-subtle p-4 rounded-[22px]">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider">
-                          Rewritten Accomplishment Bullets (X-Y-Z Formula)
-                        </span>
-                        <button 
-                          onClick={() => copyToClipboard(result.optimizedExperienceBullets.join('\n• '), 'bullets')}
-                          className="text-[#0071e3] hover:underline text-xs flex items-center gap-1 font-medium"
-                        >
-                          {copiedSection === 'bullets' ? <Check className="w-3.5 h-3.5 text-[#34c759]" /> : <Copy className="w-3.5 h-3.5" />}
-                          <span>{copiedSection === 'bullets' ? 'Copied All' : 'Copy All'}</span>
-                        </button>
-                      </div>
-                      <ul className="space-y-2.5 text-xs text-[#1d1d1f]">
-                        {result.optimizedExperienceBullets?.map((bullet: string, i: number) => (
-                          <li key={i} className="flex gap-2.5 items-start">
-                            <span className="text-[#0071e3] font-bold">•</span>
-                            <span className="leading-relaxed">{bullet}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab 2: Before & After Diff Comparison */}
-                {activeTab === 'comparison' && (
-                  <div className="liquid-glass-subtle p-4 rounded-[22px] space-y-3">
-                    <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider block">
-                      Before vs. After Bullet Point Upgrade
-                    </span>
-                    <div className="space-y-2.5">
-                      {result.optimizedExperienceBullets?.map((opt: string, i: number) => (
-                        <div key={i} className="bg-white/90 border border-white rounded-2xl p-3.5 text-xs space-y-1.5 shadow-2xs">
-                          <div className="text-[#86868b] flex items-start gap-2">
-                            <span className="text-[10px] uppercase font-semibold text-[#86868b] shrink-0 mt-0.5">Original:</span>
-                            <span className="line-through opacity-70">{originalBullets[i] || 'Handled project operations and coordinated team tasks.'}</span>
-                          </div>
-                          <div className="text-[#1d1d1f] font-medium flex items-start gap-2">
-                            <span className="text-[10px] uppercase font-semibold text-[#34c759] shrink-0 mt-0.5">Shortlist:</span>
-                            <span>{opt}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab 3: Full Rebuilt Resume */}
-                {activeTab === 'fullResume' && (
-                  <div className="liquid-glass-subtle p-4 rounded-[22px]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider">
-                        Reconstructed Plain-Text Resume (.txt)
-                      </span>
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={downloadResume}
-                          className="apple-btn-primary px-3 py-1 text-xs flex items-center gap-1.5"
-                        >
-                          <Download className="w-3.5 h-3.5" /> Download .txt
-                        </button>
-                        <button 
-                          onClick={() => copyToClipboard(result.fullOptimizedResume, 'fullResume')}
-                          className="text-[#0071e3] hover:underline text-xs flex items-center gap-1 px-2 py-1 font-medium"
-                        >
-                          {copiedSection === 'fullResume' ? <Check className="w-3.5 h-3.5 text-[#34c759]" /> : <Copy className="w-3.5 h-3.5" />}
-                          <span>{copiedSection === 'fullResume' ? 'Copied' : 'Copy'}</span>
-                        </button>
-                      </div>
-                    </div>
-                    <pre className="text-xs text-[#1d1d1f] font-mono whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto p-4 bg-white/90 rounded-2xl border border-white">
-                      {result.fullOptimizedResume}
-                    </pre>
-                  </div>
-                )}
-
-                {/* Tab 4: Cover Letter */}
-                {activeTab === 'coverLetter' && (
-                  <div className="liquid-glass-subtle p-4 rounded-[22px]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider">
-                        Tailored Cover Letter Opening
-                      </span>
-                      <button 
-                        onClick={() => copyToClipboard(result.coverLetterSnippet, 'cl')}
-                        className="text-[#0071e3] hover:underline text-xs flex items-center gap-1 font-medium"
-                      >
-                        {copiedSection === 'cl' ? <Check className="w-3.5 h-3.5 text-[#34c759]" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copiedSection === 'cl' ? 'Copied' : 'Copy'}</span>
-                      </button>
-                    </div>
-                    <p className="text-xs text-[#1d1d1f] whitespace-pre-line leading-relaxed bg-white/90 p-4 rounded-2xl border border-white">
-                      {result.coverLetterSnippet}
-                    </p>
-                  </div>
-                )}
-
-                {/* Legal Protective Disclaimer Banner */}
-                <div className="liquid-glass-subtle p-3.5 rounded-2xl flex items-start gap-2.5 text-[11px] text-[#86868b] leading-relaxed">
-                  <Info className="w-4 h-4 text-[#1d1d1f] shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-[#1d1d1f]">Legal Notice:</strong> Shortlist provides document formatting and keyword analysis based on submitted text. We do not guarantee employment or hiring decisions. Read our <Link href="/terms" className="text-[#0071e3] underline">Terms of Service</Link>.
-                  </div>
-                </div>
-
+                <Link href="/app" className="text-[#0071e3] font-semibold hover:underline inline-flex items-center gap-1">
+                  Try it on your resume <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
-            )}
-          </div>
-
-          {/* Bottom info inside panel */}
-          {result && (
-            <div className="pt-4 mt-4 border-t border-[#e5e5ea]/80 flex flex-wrap items-center justify-between text-xs text-[#86868b] gap-2">
-              <span>Remaining balance: {credits} evaluations.</span>
-              <button 
-                onClick={() => openCheckout('Shortlist Pass (15 Audits)', '₹49', 49, 15)}
-                className="text-[#0071e3] font-medium hover:underline"
-              >
-                Refill Credits (₹49)
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Apple Keynote Bento Grid Feature Section */}
-      <section id="how-it-works" className="relative z-10 py-24 px-4 bg-white/80 backdrop-blur-md border-t border-[#d2d2d7]/50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center max-w-xl mx-auto mb-16">
-            <h2 className="text-[#86868b] text-xs font-semibold uppercase tracking-widest mb-2">How It Works</h2>
-            <h3 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1d1d1f]">Designed for maximum recall.</h3>
-            <p className="text-[#86868b] text-sm mt-3">Three disciplined stages engineered to pass automated recruiter screening.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="liquid-glass p-8 rounded-[28px]">
-              <span className="text-[11px] font-bold text-[#86868b] block mb-2 font-mono">STAGE 01</span>
-              <h4 className="font-bold text-[#1d1d1f] text-base mb-2">Algorithmic Audit</h4>
-              <p className="text-[#86868b] text-xs leading-relaxed">Cross-references domain terminology, certifications, and technical skills against the job posting to discover missing keywords.</p>
-            </div>
-
-            <div className="liquid-glass p-8 rounded-[28px]">
-              <span className="text-[11px] font-bold text-[#86868b] block mb-2 font-mono">STAGE 02</span>
-              <h4 className="font-bold text-[#1d1d1f] text-base mb-2">X-Y-Z Metric Injection</h4>
-              <p className="text-[#86868b] text-xs leading-relaxed">Converts passive statements into concrete achievements using the Google framework: "Accomplished [X] measured by [Y] through doing [Z]".</p>
-            </div>
-
-            <div className="liquid-glass p-8 rounded-[28px]">
-              <span className="text-[11px] font-bold text-[#86868b] block mb-2 font-mono">STAGE 03</span>
-              <h4 className="font-bold text-[#1d1d1f] text-base mb-2">Plain-Text Submission</h4>
-              <p className="text-[#86868b] text-xs leading-relaxed">Exports a single-column plain-text resume that guarantees 100% parsing fidelity across Workday, Greenhouse, Taleo, and Lever.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Apple-Style Pricing Section (Harmonious Proportions) */}
-      <section id="pricing" className="relative z-10 py-24 px-4 bg-[#f5f5f7]/70 backdrop-blur-md border-t border-[#d2d2d7]/50">
-        <div className="max-w-4xl mx-auto text-center mb-14">
-          <h2 className="text-[#86868b] text-xs font-semibold uppercase tracking-widest mb-2">Pricing</h2>
-          <h3 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1d1d1f]">Select your pass.</h3>
-          <p className="text-[#86868b] text-sm mt-3">Simple pricing with direct UPI payment to your bank account.</p>
+      {/* Industry Reality Check (3 Key Facts) */}
+      <section className="relative z-10 py-16 px-6 max-w-5xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="liquid-glass p-8 rounded-[28px] text-center shadow-xs space-y-2">
+            <span className="text-4xl sm:text-5xl font-black text-[#1d1d1f] tracking-tight">250+</span>
+            <h3 className="text-sm font-bold text-[#1d1d1f]">Resumes Per Opening</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Every mid-to-senior tech posting is flooded with applicants, forcing recruiters to rely on algorithmic threshold cutoffs.
+            </p>
+          </div>
 
-          {/* Quick UPI status banner */}
-          <div className="mt-5 inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-white text-[#1d1d1f] text-xs px-4 py-1.5 rounded-full font-mono shadow-xs">
-            <span>UPI ID: <strong>{merchantUpiId}</strong></span>
-            <button 
-              onClick={() => setEditingUpiId(true)}
-              className="text-[#0071e3] hover:underline font-semibold ml-1 flex items-center gap-1"
-            >
-              <Edit2 className="w-3 h-3" /> Edit
-            </button>
+          <div className="liquid-glass p-8 rounded-[28px] text-center shadow-xs space-y-2">
+            <span className="text-4xl sm:text-5xl font-black text-red-500 tracking-tight">75%</span>
+            <h3 className="text-sm font-bold text-[#1d1d1f]">Eliminated Silently</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Resumes lacking exact hard-skill tokens or structured chronological formatting are filtered out before reaching human eyes.
+            </p>
+          </div>
+
+          <div className="liquid-glass p-8 rounded-[28px] text-center shadow-xs space-y-2">
+            <span className="text-4xl sm:text-5xl font-black text-[#34c759] tracking-tight">3.4x</span>
+            <h3 className="text-sm font-bold text-[#1d1d1f]">Callback Multiplier</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Candidates who rewrite passive duties into quantified impact metrics experience more than triple the interview invitation rate.
+            </p>
           </div>
         </div>
+      </section>
 
-        <div className="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-7">
-          
-          {/* Starter Plan in INR */}
-          <div className="liquid-glass p-8 rounded-[30px] flex flex-col justify-between">
+      {/* How It Works (3 Clear Steps) */}
+      <section id="how-it-works" className="relative z-10 py-20 px-6 max-w-5xl mx-auto w-full border-t border-[#d2d2d7]/50">
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#0071e3]">
+            The 30-Second Workflow
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
+            How SHORTLIST Works
+          </h2>
+          <p className="text-sm text-[#86868b]">
+            Three automated stages designed to bypass algorithmic filters and impress hiring managers.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="liquid-glass p-8 rounded-[30px] shadow-xs space-y-4">
+            <div className="w-10 h-10 rounded-2xl bg-[#0071e3]/10 text-[#0071e3] flex items-center justify-center font-bold text-sm">
+              01
+            </div>
+            <h3 className="text-base font-bold text-[#1d1d1f]">Paste Job & Resume</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Enter the target job description and your current resume text into our symmetrical dual-workstation.
+            </p>
+          </div>
+
+          <div className="liquid-glass p-8 rounded-[30px] shadow-xs space-y-4">
+            <div className="w-10 h-10 rounded-2xl bg-[#0071e3]/10 text-[#0071e3] flex items-center justify-center font-bold text-sm">
+              02
+            </div>
+            <h3 className="text-base font-bold text-[#1d1d1f]">Audit Missing Keywords</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Our deterministic lexical engine compares exact hard skills and computes an authentic match percentage (0% to 100%).
+            </p>
+          </div>
+
+          <div className="liquid-glass p-8 rounded-[30px] shadow-xs space-y-4">
+            <div className="w-10 h-10 rounded-2xl bg-[#34c759]/10 text-[#34c759] flex items-center justify-center font-bold text-sm">
+              03
+            </div>
+            <h3 className="text-base font-bold text-[#1d1d1f]">Upgrade & Export</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Google X-Y-Z formula transforms passive statements into quantified results. Download clean ATS-safe `.txt` files in 1 click.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Architecture */}
+      <section id="features" className="relative z-10 py-20 px-6 max-w-5xl mx-auto w-full border-t border-[#d2d2d7]/50">
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#0071e3]">
+            Engineered For Precision
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
+            Everything Built Into SHORTLIST
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="liquid-glass p-8 rounded-[30px] space-y-3">
+            <div className="w-10 h-10 rounded-2xl bg-white text-[#1d1d1f] flex items-center justify-center shadow-xs">
+              <Cpu className="w-5 h-5 text-[#0071e3]" />
+            </div>
+            <h3 className="text-base font-bold text-[#1d1d1f]">Deterministic Lexical Matching</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Unlike generic AI wrappers that hallucinate fake facts, our parser scans for authentic lexical frequency, technical n-grams, and specific toolchain requirements.
+            </p>
+          </div>
+
+          <div className="liquid-glass p-8 rounded-[30px] space-y-3">
+            <div className="w-10 h-10 rounded-2xl bg-white text-[#1d1d1f] flex items-center justify-center shadow-xs">
+              <TrendingUp className="w-5 h-5 text-[#34c759]" />
+            </div>
+            <h3 className="text-base font-bold text-[#1d1d1f]">Google X-Y-Z Bullet Formulas</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Replaces passive verbs with executive action verbs: <em>"Accomplished [X], as measured by [Y], by doing [Z]"</em> to immediately prove ROI to hiring managers.
+            </p>
+          </div>
+
+          <div className="liquid-glass p-8 rounded-[30px] space-y-3">
+            <div className="w-10 h-10 rounded-2xl bg-white text-[#1d1d1f] flex items-center justify-center shadow-xs">
+              <Smartphone className="w-5 h-5 text-[#0071e3]" />
+            </div>
+            <h3 className="text-base font-bold text-[#1d1d1f]">Direct Zero-Fee UPI Payments</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              No bloated monthly $20 subscriptions. Pay directly via Google Pay, PhonePe, Paytm, or BHIM starting at just ₹49 per pack.
+            </p>
+          </div>
+
+          <div className="liquid-glass p-8 rounded-[30px] space-y-3">
+            <div className="w-10 h-10 rounded-2xl bg-white text-[#1d1d1f] flex items-center justify-center shadow-xs">
+              <ShieldCheck className="w-5 h-5 text-[#1d1d1f]" />
+            </div>
+            <h3 className="text-base font-bold text-[#1d1d1f]">Strict Data Confidentiality</h3>
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              Your resume is processed ephemerally. We never sell, rent, or distribute candidate records to third-party recruiters or data brokers.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section in INR */}
+      <section id="pricing" className="relative z-10 py-24 px-6 max-w-4xl mx-auto w-full border-t border-[#d2d2d7]/50">
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#0071e3]">
+            Simple & Transparent Micro-Pricing
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
+            Priced in INR. Affordable for Everyone.
+          </h2>
+          <p className="text-sm text-[#86868b]">
+            Zero recurring credit card commitments. Direct UPI transfer with instant credit activation.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Starter Plan */}
+          <div className="liquid-glass p-8 rounded-[32px] flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-bold text-base text-[#1d1d1f]">Shortlist Pass</h4>
-                <span className="text-[10px] bg-white/90 border border-white text-[#1d1d1f] px-2.5 py-0.5 rounded-full font-medium">One-Time</span>
+                <h3 className="font-bold text-base text-[#1d1d1f]">Shortlist Pass</h3>
+                <span className="text-[10px] bg-white border border-white text-[#1d1d1f] px-2.5 py-0.5 rounded-full font-medium">One-Time</span>
               </div>
-              <p className="text-[#86868b] text-xs mb-5">Ideal for targeting a specific dream opening.</p>
+              <p className="text-xs text-[#86868b] mb-6">Ideal for targeting specific dream job applications.</p>
               
-              <div className="text-5xl font-bold tracking-tight text-[#1d1d1f] mb-6">
+              <div className="text-5xl font-black tracking-tight text-[#1d1d1f] mb-6">
                 ₹49 <span className="text-xs font-normal text-[#86868b]">/ 15 Evaluations</span>
               </div>
 
               <ul className="text-xs space-y-3 text-[#1d1d1f] mb-8">
-                <li className="flex items-center gap-2.5">✓ 15 Full ATS Audits (<span className="text-[#86868b]">~₹3.20/audit</span>)</li>
-                <li className="flex items-center gap-2.5">✓ Keyword Gap Breakdown</li>
-                <li className="flex items-center gap-2.5">✓ X-Y-Z Accomplishment Re-write</li>
-                <li className="flex items-center gap-2.5">✓ Plain-Text Export (.txt)</li>
+                <li className="flex items-center gap-2">✓ 15 Full ATS Audits (<span className="text-[#86868b]">~₹3.20/audit</span>)</li>
+                <li className="flex items-center gap-2">✓ Missing Keyword Radar</li>
+                <li className="flex items-center gap-2">✓ Google X-Y-Z Metric Upgrades</li>
+                <li className="flex items-center gap-2">✓ 1-Click Plain-Text Download (.txt)</li>
               </ul>
             </div>
 
-            <button
-              onClick={() => openCheckout('Shortlist Pass (15 Audits)', '₹49', 49, 15)}
-              className="apple-btn-dark w-full py-3.5 text-xs flex items-center justify-center gap-1.5 shadow-sm"
+            <Link
+              href="/app"
+              className="apple-btn-dark w-full py-3.5 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm"
             >
               <Smartphone className="w-3.5 h-3.5" />
-              <span>Pay with UPI (₹49)</span>
-            </button>
+              <span>Get 15 Audits (₹49)</span>
+            </Link>
           </div>
 
-          {/* Unlimited Pro Plan in INR */}
-          <div className="liquid-glass p-8 rounded-[30px] flex flex-col justify-between border-2 border-[#1d1d1f] relative">
-            <span className="absolute -top-3 right-6 bg-[#1d1d1f] text-white text-[9px] font-semibold uppercase px-3 py-0.5 rounded-full tracking-wider shadow-sm">
-              Popular
+          {/* Unlimited Pro Plan */}
+          <div className="liquid-glass p-8 rounded-[32px] flex flex-col justify-between border-2 border-[#1d1d1f] relative shadow-lg">
+            <span className="absolute -top-3 right-6 bg-[#1d1d1f] text-white text-[9px] font-bold uppercase px-3 py-0.5 rounded-full tracking-wider shadow-sm">
+              Most Popular
             </span>
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h4 className="font-bold text-base text-[#1d1d1f]">Unlimited Pro</h4>
-                <span className="text-[10px] bg-white/90 border border-white text-[#1d1d1f] px-2.5 py-0.5 rounded-full font-medium">Monthly</span>
+                <h3 className="font-bold text-base text-[#1d1d1f]">Unlimited Pro</h3>
+                <span className="text-[10px] bg-white border border-white text-[#1d1d1f] px-2.5 py-0.5 rounded-full font-medium">Monthly</span>
               </div>
-              <p className="text-[#86868b] text-xs mb-5">For active candidates applying across multiple roles.</p>
+              <p className="text-xs text-[#86868b] mb-6">For active candidates applying across multiple companies.</p>
               
-              <div className="text-5xl font-bold tracking-tight text-[#1d1d1f] mb-6">
+              <div className="text-5xl font-black tracking-tight text-[#1d1d1f] mb-6">
                 ₹99 <span className="text-xs font-normal text-[#86868b]">/ month</span>
               </div>
 
               <ul className="text-xs space-y-3 text-[#1d1d1f] mb-8">
-                <li className="flex items-center gap-2.5">✓ Unlimited Resume Audits (<span className="text-[#86868b]">&lt;₹3.30/day</span>)</li>
-                <li className="flex items-center gap-2.5">✓ Custom Cover Letter Openings</li>
-                <li className="flex items-center gap-2.5">✓ Executive Tone Rewriting</li>
-                <li className="flex items-center gap-2.5">✓ Cancel Anytime</li>
+                <li className="flex items-center gap-2">✓ Unlimited ATS Resume Audits (<span className="text-[#86868b]">&lt;₹3.30/day</span>)</li>
+                <li className="flex items-center gap-2">✓ Custom Cover Letter Hooks</li>
+                <li className="flex items-center gap-2">✓ Priority Technical Skill Expansion</li>
+                <li className="flex items-center gap-2">✓ Cancel Anytime With Zero Fees</li>
               </ul>
             </div>
 
-            <button
-              onClick={() => openCheckout('Unlimited Monthly Subscription', '₹99', 99, 100)}
-              className="apple-btn-primary w-full py-3.5 text-xs flex items-center justify-center gap-1.5 shadow-md"
+            <Link
+              href="/app"
+              className="apple-btn-primary w-full py-3.5 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md"
             >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>Subscribe via UPI (₹99/mo)</span>
-            </button>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Subscribe for ₹99/mo</span>
+            </Link>
           </div>
-
         </div>
       </section>
 
-      {/* Apple-Style Questions / FAQ Section */}
+      {/* Prominent High-Visibility Questions Section */}
       <section id="faq" className="relative z-10 py-24 px-6 border-t border-[#d2d2d7]/60">
         <div className="max-w-4xl mx-auto">
-          {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0071e3]/10 text-[#0071e3] text-xs font-semibold tracking-wide uppercase">
               <Info className="w-3.5 h-3.5" />
@@ -990,17 +471,16 @@ Professional Experience:
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1d1d1f] tracking-tight">
               Frequently Asked Questions
             </h2>
-            <p className="text-sm sm:text-base text-[#86868b] leading-relaxed">
-              Everything you need to know about direct UPI payments, our ATS optimization algorithm, and data privacy.
+            <p className="text-sm text-[#86868b]">
+              Everything you need to know about direct UPI payments, our ATS algorithm, and data privacy.
             </p>
           </div>
 
-          {/* Prominent Visible Questions Stack */}
           <div className="space-y-4">
             {[
               {
                 q: "How do UPI payments work on Shortlist?",
-                a: "When you choose a plan, an instant scannable UPI QR code is generated for your selected amount (₹49 or ₹99). You can scan it directly with Google Pay, PhonePe, Paytm, BHIM, or Cred, or tap 'Pay on Mobile App' on your phone. All funds transfer 100% directly to darsheel.sirola@fam with zero middleman commissions. Paste your 12-digit UPI reference number to activate audits instantly."
+                a: "When you choose a plan inside the Workstation, an instant scannable UPI QR code is generated for your selected amount (₹49 or ₹99). You can scan it directly with Google Pay, PhonePe, Paytm, BHIM, or Cred, or tap 'Pay on Mobile App' on your phone. All funds transfer 100% directly to darsheel.sirola@fam with zero middleman commissions. Paste your 12-digit UPI reference number to activate audits instantly."
               },
               {
                 q: "Will my optimized resume pass ATS filters like Workday, Greenhouse, Taleo, and Lever?",
@@ -1068,7 +548,28 @@ Professional Experience:
         </div>
       </section>
 
-      {/* Apple Official Clean Footer */}
+      {/* Bottom Call-to-Action Banner */}
+      <section className="relative z-10 py-20 px-6 max-w-4xl mx-auto w-full text-center">
+        <div className="liquid-glass p-10 sm:p-14 rounded-[36px] shadow-2xl border border-white space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
+            Ready to 3x your interview callback rate?
+          </h2>
+          <p className="text-sm sm:text-base text-[#86868b] max-w-xl mx-auto leading-relaxed">
+            Stop sending resumes that get deleted by automated algorithms. Run an instant audit in 30 seconds.
+          </p>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/app"
+              className="apple-btn-primary px-8 py-3.5 text-sm font-semibold flex items-center gap-2 shadow-md hover:scale-[1.02] transition-transform"
+            >
+              <span>Launch SHORTLIST Workstation</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Apple Official Clean Legal Footer */}
       <footer className="relative z-10 border-t border-[#d2d2d7] py-12 px-6 text-xs text-[#86868b] bg-[#f5f5f7]/80 backdrop-blur-md">
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="flex flex-wrap justify-between items-center gap-4">
@@ -1076,7 +577,8 @@ Professional Experience:
             <div className="flex items-center space-x-6 text-[#1d1d1f] font-normal">
               <Link href="/terms" className="hover:underline">Terms of Service</Link>
               <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
-              <a href="#tool" className="hover:underline">Audit Tool</a>
+              <Link href="/app" className="hover:underline">Workstation</Link>
+              <Link href="/login" className="hover:underline">Sign In</Link>
               <a href="#pricing" className="hover:underline">Pricing (₹)</a>
             </div>
           </div>
@@ -1095,160 +597,6 @@ Professional Experience:
           </div>
         </div>
       </footer>
-
-      {/* Direct UPI Payment Modal (Apple Pay Sheet Style with Liquid Glass) */}
-      {checkoutModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/35 backdrop-blur-md flex items-center justify-center p-4 animate-appleFadeUp">
-          <div className="liquid-glass rounded-[32px] max-w-sm w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button 
-              onClick={() => setCheckoutModalOpen(false)}
-              className="absolute top-4 right-4 text-[#86868b] hover:text-[#1d1d1f]"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {/* Modal Header */}
-            <div className="text-center mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-white/80 border border-white text-[#1d1d1f] flex items-center justify-center mx-auto mb-2 shadow-xs">
-                <QrCode className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-[#1d1d1f] tracking-tight">{selectedPlan.name}</h3>
-              <p className="text-xs text-[#86868b] mt-0.5">Direct UPI Transfer • 0% Commission</p>
-            </div>
-
-            {/* Direct UPI Payment Flow */}
-            <div className="space-y-4">
-                
-                {/* QR Code & Amount Card */}
-                <div className="liquid-glass-subtle p-4 rounded-2xl text-center flex flex-col items-center">
-                  <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider block mb-1">
-                    Scan with any UPI App
-                  </span>
-                  
-                  {/* Real Scannable UPI QR Code */}
-                  <div className="bg-white p-2.5 rounded-2xl border border-white shadow-xs my-2">
-                    <img 
-                      src={qrCodeUrl} 
-                      alt="UPI QR Code" 
-                      className="w-36 h-36 object-contain mx-auto"
-                    />
-                  </div>
-
-                  <div className="text-3xl font-bold tracking-tight text-[#1d1d1f] my-1">
-                    {selectedPlan.price}
-                  </div>
-
-                  {/* Merchant UPI ID with Copy Button */}
-                  <div className="flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-full border border-white text-xs font-mono mt-1 shadow-2xs">
-                    <span className="text-[#1d1d1f] font-semibold">{merchantUpiId}</span>
-                    <button 
-                      onClick={() => copyToClipboard(merchantUpiId, 'upi')}
-                      className="text-[#0071e3] hover:underline font-sans text-[11px] ml-1 font-medium"
-                    >
-                      {copiedSection === 'upi' ? 'Copied' : 'Copy'}
-                    </button>
-                  </div>
-
-                  {/* Deep Link Button for Mobile */}
-                  <a
-                    href={upiDeepLink}
-                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#0071e3] bg-white border border-white px-3.5 py-1.5 rounded-full hover:bg-white/80 transition shadow-2xs"
-                  >
-                    <span>Tap to Pay on Mobile App</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-
-                  <p className="text-[10px] text-[#86868b] mt-2">
-                    Google Pay • PhonePe • Paytm • BHIM • Cred
-                  </p>
-                </div>
-
-                {/* Step 2: Reference Number / UTR Input */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-[#1d1d1f] block">
-                    Enter 12-Digit UPI Ref / UTR Number:
-                  </label>
-                  <input
-                    type="text"
-                    value={utrNumber}
-                    onChange={(e) => setUtrNumber(e.target.value)}
-                    placeholder="e.g. 428190123456"
-                    className="w-full bg-white/90 border border-[#d2d2d7]/80 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#0071e3] font-mono text-[#1d1d1f]"
-                  />
-                  <span className="text-[10px] text-[#86868b] block">
-                    Found in payment receipt on GPay or PhonePe.
-                  </span>
-                </div>
-
-                {/* Terms Agreement */}
-                <div className="flex items-start gap-2 liquid-glass-subtle p-2.5 rounded-xl">
-                  <input 
-                    type="checkbox" 
-                    id="legalAgreementUpi" 
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-0.5 rounded border-[#d2d2d7] text-[#1d1d1f] focus:ring-[#1d1d1f]"
-                  />
-                  <label htmlFor="legalAgreementUpi" className="text-[11px] text-[#86868b] leading-snug">
-                    I agree to the <Link href="/terms" target="_blank" className="text-[#0071e3] underline">Terms of Service</Link>.
-                  </label>
-                </div>
-
-                {/* Verify Button */}
-                <button
-                  onClick={verifyUpiPayment}
-                  disabled={!agreedToTerms}
-                  className="apple-btn-primary w-full py-3 text-xs flex items-center justify-center gap-1.5 shadow-sm"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                  <span>Verify UTR & Activate ({selectedPlan.price})</span>
-                </button>
-              </div>
-
-            <p className="text-[10px] text-[#86868b] text-center mt-3">
-              Encrypted transaction. Direct to bank via UPI.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Merchant UPI Modal */}
-      {editingUpiId && (
-        <div className="fixed inset-0 z-50 bg-black/35 backdrop-blur-md flex items-center justify-center p-4 animate-appleFadeUp">
-          <div className="liquid-glass rounded-[28px] max-w-sm w-full p-6 shadow-2xl relative">
-            <button 
-              onClick={() => setEditingUpiId(false)}
-              className="absolute top-4 right-4 text-[#86868b] hover:text-[#1d1d1f]"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <h3 className="text-base font-bold text-[#1d1d1f] mb-1">Set Your Receiving UPI ID</h3>
-            <p className="text-xs text-[#86868b] mb-4">All customer payments will go directly to this UPI address.</p>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-[#1d1d1f] block mb-1">Your UPI ID (VPA):</label>
-                <input 
-                  type="text"
-                  value={tempUpiInput}
-                  onChange={(e) => setTempUpiInput(e.target.value)}
-                  placeholder="e.g. 9876543210@paytm or name@okhdfcbank"
-                  className="w-full bg-white/90 border border-[#d2d2d7] rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-[#0071e3] text-[#1d1d1f]"
-                />
-              </div>
-
-              <button
-                onClick={saveCustomUpi}
-                className="apple-btn-dark w-full py-2.5 text-xs font-medium"
-              >
-                Save UPI ID
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
