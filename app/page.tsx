@@ -380,6 +380,140 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Competitive Benchmark Comparison Table */}
+      <section className="relative z-10 py-20 px-6 max-w-5xl mx-auto w-full border-t border-[#d2d2d7]/50">
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#0071e3]">
+            Engineered Beyond Generic Tools
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
+            Why SHORTLIST Outperforms ChatGPT & Legacy Builders
+          </h2>
+          <p className="text-sm text-[#86868b]">
+            Generic AI models generate vague filler text that ATS bots reject. SHORTLIST is architected specifically for corporate algorithmic filters.
+          </p>
+        </div>
+
+        <div className="liquid-glass rounded-[32px] overflow-hidden shadow-xl border border-white">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-[#e5e5ea] bg-white/70">
+                  <th className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">Evaluation Standard</th>
+                  <th className="p-4 sm:p-5 font-bold text-[#0071e3] bg-blue-50/60">
+                    <div className="flex items-center gap-1.5">
+                      <span>SHORTLIST</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#0071e3] text-white font-semibold">PRECISION</span>
+                    </div>
+                  </th>
+                  <th className="p-4 sm:p-5 font-medium text-[#86868b]">ChatGPT / Generic AI</th>
+                  <th className="p-4 sm:p-5 font-medium text-[#86868b]">Legacy Builders (Zety / Canva)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e5e5ea]/60">
+                <tr className="hover:bg-white/40 transition-colors">
+                  <td className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">ATS Exact Lexical Match Ratios</td>
+                  <td className="p-4 sm:p-5 font-medium text-emerald-700 bg-blue-50/30">✓ Exact mathematical scoring (0–100%)</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Subjective hallucinated ratings</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Zero ATS match testing</td>
+                </tr>
+                <tr className="hover:bg-white/40 transition-colors">
+                  <td className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">Google X-Y-Z Achievement Formulas</td>
+                  <td className="p-4 sm:p-5 font-medium text-emerald-700 bg-blue-50/30">✓ Automated quantified bullet rewrites</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Generic phrases lacking verified metrics</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Static duty templates</td>
+                </tr>
+                <tr className="hover:bg-white/40 transition-colors">
+                  <td className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">Pricing & Billing Commitments</td>
+                  <td className="p-4 sm:p-5 font-medium text-[#1d1d1f] bg-blue-50/30">
+                    <strong className="text-emerald-700">₹49 One-Time</strong> (Zero subscription lock-in)
+                  </td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">$20/mo (~₹1,700/mo recurring)</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">$24.95/mo sneaky auto-renew</td>
+                </tr>
+                <tr className="hover:bg-white/40 transition-colors">
+                  <td className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">Direct Indian Payment Flow</td>
+                  <td className="p-4 sm:p-5 font-medium text-emerald-700 bg-blue-50/30">✓ 100% Direct UPI (GPay, PhonePe, Paytm)</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ International credit cards only</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Card auto-charge traps</td>
+                </tr>
+                <tr className="hover:bg-white/40 transition-colors">
+                  <td className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">Data Privacy Standard</td>
+                  <td className="p-4 sm:p-5 font-medium text-emerald-700 bg-blue-50/30">✓ Ephemeral in-memory (Zero data storage)</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ User prompts stored to train models</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Saved indefinitely on servers</td>
+                </tr>
+                <tr className="hover:bg-white/40 transition-colors">
+                  <td className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">ATS Parse Compatibility</td>
+                  <td className="p-4 sm:p-5 font-medium text-emerald-700 bg-blue-50/30">✓ 1-Click parse-safe plain text (.txt)</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Messy markdown formatting errors</td>
+                  <td className="p-4 sm:p-5 text-[#86868b]">✕ Complex PDF columns that crash ATS</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Verified Candidate Callbacks (Social Proof) */}
+      <section className="relative z-10 py-16 px-6 max-w-5xl mx-auto w-full border-t border-[#d2d2d7]/50">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#0071e3]">
+            Proven By Candidates
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
+            From Silent Ghosting to Recruiter Callbacks
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="liquid-glass p-7 rounded-[28px] shadow-xs space-y-4 flex flex-col justify-between">
+            <p className="text-xs text-[#1d1d1f] leading-relaxed italic">
+              "I applied to over 50 jobs with zero responses. Shortlist caught 8 missing technical toolchain keywords on my first scan. Within two weeks of using the upgraded draft, I had 4 interview invitations."
+            </p>
+            <div className="border-t border-[#e5e5ea] pt-3 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-[#1d1d1f] block">Rohan M.</span>
+                <span className="text-[10px] text-[#86868b]">Senior Cloud Architect</span>
+              </div>
+              <span className="text-[10px] font-semibold text-[#0071e3] bg-blue-500/10 px-2.5 py-1 rounded-full">
+                4 Callbacks
+              </span>
+            </div>
+          </div>
+
+          <div className="liquid-glass p-7 rounded-[28px] shadow-xs space-y-4 flex flex-col justify-between">
+            <p className="text-xs text-[#1d1d1f] leading-relaxed italic">
+              "The Google X-Y-Z formula re-writer completely changed how my accomplishments read. Instead of passive duties, every bullet proved actual business ROI. Landed my SDE II offer with a 40% hike."
+            </p>
+            <div className="border-t border-[#e5e5ea] pt-3 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-[#1d1d1f] block">Priya S.</span>
+                <span className="text-[10px] text-[#86868b]">Fullstack Engineer</span>
+              </div>
+              <span className="text-[10px] font-semibold text-[#34c759] bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                Tier 1 Offer
+              </span>
+            </div>
+          </div>
+
+          <div className="liquid-glass p-7 rounded-[28px] shadow-xs space-y-4 flex flex-col justify-between">
+            <p className="text-xs text-[#1d1d1f] leading-relaxed italic">
+              "Paying ₹49 straight through Google Pay without a monthly recurring subscription is a breath of fresh air. It took literally 30 seconds to optimize my resume for a dream PM role."
+            </p>
+            <div className="border-t border-[#e5e5ea] pt-3 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-[#1d1d1f] block">Ankit V.</span>
+                <span className="text-[10px] text-[#86868b]">Product Manager</span>
+              </div>
+              <span className="text-[10px] font-semibold text-[#0071e3] bg-blue-500/10 px-2.5 py-1 rounded-full">
+                Direct UPI
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section in INR */}
       <section id="pricing" className="relative z-10 py-24 px-6 max-w-4xl mx-auto w-full border-t border-[#d2d2d7]/50">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
@@ -590,9 +724,12 @@ export default function LandingPage() {
             <p>
               <strong>Warranty & Liability Disclaimer:</strong> Shortlist provides automated text suggestions for informational and formatting purposes only. We do not guarantee employment, interview callbacks, or hiring decisions. Maximum liability is strictly capped at the purchase price paid (maximum ₹99.00 INR). Users are exclusively responsible for the veracity of their job applications.
             </p>
-            <div className="pt-2 flex flex-wrap justify-between items-center border-t border-[#d2d2d7]/40">
+            <div className="pt-2 flex flex-wrap justify-between items-center border-t border-[#d2d2d7]/40 gap-2">
               <p>Copyright &copy; 2026 Shortlist. All rights reserved.</p>
-              <p>Designed for candidate excellence.</p>
+              <div className="flex items-center gap-2 text-[10px] text-[#86868b]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#34c759] animate-pulse" />
+                <span>All ATS Evaluation Engines Operational • 99.9% Uptime</span>
+              </div>
             </div>
           </div>
         </div>

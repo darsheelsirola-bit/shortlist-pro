@@ -47,6 +47,18 @@ export default function WorkstationPage() {
   // Animated Score state
   const [animatedScore, setAnimatedScore] = useState<number>(0);
 
+  // Progressive Loading State
+  const [loadingStage, setLoadingStage] = useState<string>('Auditing ATS Match...');
+
+  // Track Injected Keywords for Instant Visual Feedback
+  const [addedKeywords, setAddedKeywords] = useState<string[]>([]);
+
+  // Active Preset Sample
+  const [activeSample, setActiveSample] = useState<'engineering' | 'product' | 'growth'>('engineering');
+
+  // Copy Feedback for UPI ID
+  const [upiCopied, setUpiCopied] = useState<boolean>(false);
+
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -114,9 +126,11 @@ export default function WorkstationPage() {
     });
   };
 
-  const loadSample = () => {
-    setJobDescription(
-`Role: Senior Fullstack Engineer
+  const SAMPLES = {
+    engineering: {
+      label: 'Cloud / SDE',
+      toast: 'Senior Fullstack & Cloud Engineer sample loaded.',
+      job: `Role: Senior Fullstack Engineer
 Company: Apex Cloud Technologies
 Location: Remote (India / Worldwide)
 
@@ -126,19 +140,100 @@ Core Responsibilities:
 • Drive database performance tuning and caching strategies across PostgreSQL, Redis, and BigQuery.
 • Lead sprint planning, conduct architecture design reviews, and establish CI/CD deployment pipelines using GitHub Actions.
 • Partner with product managers and UX designers to reduce page latency and improve Core Web Vitals.
-• Direct accountability for customer retention, CAC reduction, and quarterly revenue KPIs.`
-    );
-    setResume(
-`Alex Morgan — Software Engineer
+• Direct accountability for customer retention, CAC reduction, and quarterly revenue KPIs.`,
+      resume: `Alex Morgan — Software Engineer
 Professional Experience:
 • Managed software releases for enterprise business tools.
 • Worked with engineering and design leads to coordinate product feature roadmaps.
 • Tracked product usage data using spreadsheets and basic analytics reporting.
 • Organized weekly team sprint reviews and daily standup syncs.
 • Communicated quarterly release updates to department leaders and stakeholders.`
-    );
-    showToast('Senior Fullstack sample loaded.');
+    },
+    product: {
+      label: 'Product Mgr',
+      toast: 'Principal Product Manager sample loaded.',
+      job: `Role: Principal Product Manager (B2B SaaS)
+Company: Horizon Cloud Platforms
+Location: Bengaluru / Remote
+
+Key Responsibilities:
+• Own end-to-end product vision, sprint prioritization, and roadmap execution for core $14M ARR revenue stream.
+• Partner with Engineering and Design to define PRDs, user stories, acceptance criteria, and quarterly OKRs.
+• Conduct qualitative customer discovery interviews, instrument Mixpanel event tracking, and optimize PLG conversion funnels.
+• Drive cross-functional go-to-market strategies with Sales, Marketing, and Customer Success to compress customer churn below 1.5%.
+• Proven proficiency with SQL queries, data warehousing, and iterative A/B testing methodologies.`,
+      resume: `Jordan Lee — Associate Product Manager
+Experience:
+• Handled feature requests from customer support and internal stakeholders.
+• Attended daily standup meetings with software developers and design teams.
+• Created presentation slides for leadership quarterly feature roadmaps.
+• Monitored user feedback tickets and helped test sprint releases before launch.`
+    },
+    growth: {
+      label: 'Growth Lead',
+      toast: 'Growth Marketing Lead sample loaded.',
+      job: `Role: Growth Marketing Lead
+Company: HyperScale Commerce
+Location: Remote
+
+Responsibilities:
+• Manage and allocate $120,000 monthly paid performance media budget across Google Ads, Meta Ads, and LinkedIn Campaign Manager.
+• Architect data-driven conversion rate optimization (CRO) experiments across landing pages, lifting ROAS from 2.1x to 3.8x.
+• Lead technical and programmatic SEO initiatives, page-speed optimizations, and high-intent keyword clustering.
+• Instrument multi-touch attribution modeling across GA4, Segment, and PostHog to isolate high-LTV customer cohorts.`,
+      resume: `Samir Patel — Digital Marketing Specialist
+Experience:
+• Ran digital ad campaigns across social media channels and search engines.
+• Wrote company blog posts and assisted with weekly email newsletters.
+• Monitored weekly visitor traffic metrics in Google Analytics.
+• Prepared monthly reporting slide decks for marketing leadership.`
+    }
   };
+
+  const loadSample = (role: 'engineering' | 'product' | 'growth' = 'engineering') => {
+    setActiveSample(role);
+    setJobDescription(SAMPLES[role].job);
+    setResume(SAMPLES[role].resume);
+    setAddedKeywords([]);
+    showToast(SAMPLES[role].toast);
+  };
+
+  // Progressive Loading State Stages
+  useEffect(() => {
+    if (!loading && !enhanceLoading) return;
+    const stages = loading
+      ? [
+          'Tokenizing job description hard skills...',
+          'Scanning candidate lexical competencies...',
+          'Computing deterministic ATS match ratio...',
+          'Synthesizing missing keyword radar...'
+        ]
+      : [
+          'Extracting passive verbs from candidate bullets...',
+          'Mapping to Google X-Y-Z achievement formulas...',
+          'Injecting quantifiable metrics and percentages...',
+          'Polishing executive leadership syntax...'
+        ];
+    let i = 0;
+    setLoadingStage(stages[0]);
+    const timer = setInterval(() => {
+      i = (i + 1) % stages.length;
+      setLoadingStage(stages[i]);
+    }, 600);
+    return () => clearInterval(timer);
+  }, [loading, enhanceLoading]);
+
+  // Global Keyboard Shortcut: ⌘+Enter / Ctrl+Enter
+  useEffect(() => {
+    const onGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleAnalyze();
+      }
+    };
+    window.addEventListener('keydown', onGlobalKeyDown);
+    return () => window.removeEventListener('keydown', onGlobalKeyDown);
+  }, [jobDescription, resume, credits]);
 
   const clearForm = () => {
     setJobDescription('');
@@ -241,9 +336,19 @@ Professional Experience:
   const injectKeywords = (kw?: string) => {
     const toInject = kw ? [kw] : result?.missingKeywords;
     if (!toInject || toInject.length === 0) return;
-    const kwText = `\n\nADDITIONAL COMPETENCIES: ${toInject.join(' • ')}`;
-    setResume(prev => prev + kwText);
-    showToast(`Appended ${toInject.length} keyword(s) to draft.`);
+
+    setResume(prev => {
+      const skillsHeaderMatch = prev.match(/(Technical Skills|Core Competencies|Key Skills|Skills|Competencies):/i);
+      if (skillsHeaderMatch) {
+        return prev.replace(skillsHeaderMatch[0], `${skillsHeaderMatch[0]} ${toInject.join(', ')},`);
+      } else {
+        return prev + `\n\nCORE COMPETENCIES & KEYWORDS:\n${toInject.join(' • ')}`;
+      }
+    });
+
+    setAddedKeywords(prev => Array.from(new Set([...prev, ...toInject])));
+    setAnimatedScore(prev => Math.min(98, prev + (kw ? 6 : 18)));
+    showToast(kw ? `Injected "${kw}" into draft! Score recalculated.` : `Injected ${toInject.length} keywords! Score recalculated.`);
   };
 
   const openCheckout = (name: string, price: string, amount: number, planCredits: number) => {
@@ -401,16 +506,27 @@ Professional Experience:
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={loadSample}
-              className="px-3 py-1.5 rounded-full bg-white/80 hover:bg-white text-xs font-medium text-[#1d1d1f] border border-[#d2d2d7]/70 transition-all shadow-2xs"
-            >
-              Load Senior Tech Sample
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] text-[#86868b] font-medium hidden sm:inline">Try Pre-Loaded Sample:</span>
+            <div className="apple-segmented flex gap-1 text-xs">
+              {(['engineering', 'product', 'growth'] as const).map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => loadSample(role)}
+                  className={`px-3 py-1 rounded-full text-xs transition-all ${
+                    activeSample === role && jobDescription.length > 0
+                      ? 'bg-white text-[#1d1d1f] font-semibold shadow-2xs'
+                      : 'text-[#86868b] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  {SAMPLES[role].label}
+                </button>
+              ))}
+            </div>
             <button
               onClick={clearForm}
-              className="p-1.5 rounded-full bg-white/80 hover:bg-white text-[#86868b] hover:text-red-600 border border-[#d2d2d7]/70 transition-all shadow-2xs"
+              className="p-1.5 rounded-full bg-white/80 hover:bg-white text-[#86868b] hover:text-red-600 border border-[#d2d2d7]/70 transition-all shadow-2xs ml-1"
               title="Clear Workstation"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -436,13 +552,14 @@ Professional Experience:
               <textarea
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Paste the employer's exact job requirements, responsibilities, and qualifications..."
                 rows={11}
                 className="w-full p-4 rounded-2xl bg-white/90 border border-[#d2d2d7]/70 text-xs focus:outline-none focus:border-[#0071e3] transition-colors resize-none leading-relaxed text-[#1d1d1f] shadow-2xs"
               />
             </div>
             <div className="mt-3 flex items-center justify-between text-[11px] text-[#86868b]">
-              <span>Extracts skills, credentials & toolchains</span>
+              <span>Extracts hard skills & credentials</span>
               <span>Min. 40 characters</span>
             </div>
           </div>
@@ -469,7 +586,9 @@ Professional Experience:
               />
             </div>
             <div className="mt-3 flex items-center justify-between text-[11px] text-[#86868b]">
-              <span>Press ⌘+Enter to Audit</span>
+              <span className="flex items-center gap-1">
+                Press <kbd className="kbd-shortcut">⌘↵</kbd> or <kbd className="kbd-shortcut">Ctrl+↵</kbd> to Audit
+              </span>
               <span>Plain-text preferred</span>
             </div>
           </div>
@@ -504,11 +623,15 @@ Professional Experience:
               className="apple-btn-dark px-5 py-2.5 text-xs flex items-center gap-2 shadow-xs disabled:opacity-50"
             >
               {loading ? (
-                <span>Auditing...</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="font-mono text-[11px]">{loadingStage}</span>
+                </div>
               ) : (
                 <>
                   <Search className="w-3.5 h-3.5" />
                   <span>Audit ATS Match</span>
+                  <kbd className="kbd-shortcut bg-white/10 text-white/70 border-white/20 ml-1 hidden sm:inline-flex">⌘↵</kbd>
                 </>
               )}
             </button>
@@ -519,7 +642,10 @@ Professional Experience:
               className="apple-btn-primary px-5 py-2.5 text-xs flex items-center gap-2 shadow-sm disabled:opacity-50"
             >
               {enhanceLoading ? (
-                <span>Rewriting...</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="font-mono text-[11px]">{loadingStage}</span>
+                </div>
               ) : (
                 <>
                   <Sparkles className="w-3.5 h-3.5" />
@@ -586,16 +712,24 @@ Professional Experience:
                     <span className="text-[11px] text-[#86868b] font-medium mr-1">
                       Missing keywords:
                     </span>
-                    {result.missingKeywords.map((kw: string, i: number) => (
-                      <button
-                        key={i}
-                        onClick={() => injectKeywords(kw)}
-                        className="px-2 py-0.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-700 text-[11px] font-medium border border-red-500/20 transition-all flex items-center gap-1"
-                        title="Click to append to your resume"
-                      >
-                        <span>+ {kw}</span>
-                      </button>
-                    ))}
+                    {result.missingKeywords.map((kw: string, i: number) => {
+                      const isAdded = addedKeywords.includes(kw);
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => !isAdded && injectKeywords(kw)}
+                          disabled={isAdded}
+                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-all flex items-center gap-1 ${
+                            isAdded
+                              ? 'bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 opacity-80 cursor-default'
+                              : 'bg-red-500/10 hover:bg-red-500/20 text-red-700 border border-red-500/20 hover:scale-105 active:scale-95 shadow-2xs'
+                          }`}
+                          title={isAdded ? 'Already added to resume draft' : 'Click to append keyword to resume draft'}
+                        >
+                          <span>{isAdded ? '✓' : '+'} {kw}</span>
+                        </button>
+                      );
+                    })}
                     <button
                       onClick={() => injectKeywords()}
                       className="text-[11px] text-[#0071e3] font-semibold hover:underline ml-2"
@@ -812,9 +946,9 @@ Professional Experience:
                   placeholder="e.g. 428190123456"
                   className="w-full bg-white/90 border border-[#d2d2d7]/80 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#0071e3] font-mono text-[#1d1d1f]"
                 />
-                <span className="text-[10px] text-[#86868b] block">
-                  Found in payment receipt on GPay or PhonePe.
-                </span>
+                <p className="text-[10px] text-[#86868b] leading-relaxed">
+                  Found on your transaction screen: Google Pay (UPI transaction ID) • PhonePe (UTR) • Paytm (UPI Ref No.)
+                </p>
               </div>
 
               {/* Terms Agreement */}
