@@ -89,6 +89,23 @@ export default function WorkstationPage() {
     credits: 15
   });
 
+  // Dynamic Razorpay QR State
+  const [razorpayQrData, setRazorpayQrData] = useState<{
+    qrId: string | null;
+    orderId: string | null;
+    qrImageUrl: string;
+    upiDeepLink: string;
+    loading: boolean;
+    mock?: boolean;
+  }>({
+    qrId: null,
+    orderId: null,
+    qrImageUrl: '',
+    upiDeepLink: '',
+    loading: false,
+  });
+  const [showManualRefInput, setShowManualRefInput] = useState(false);
+
   // User Profile Dropdown state
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
@@ -362,30 +379,133 @@ Experience:
     showToast(kw ? `Injected "${kw}" into draft! Score recalculated.` : `Injected ${toInject.length} keywords! Score recalculated.`);
   };
 
+  const fetchRazorpayQr = async (plan: { name: string; price: string; amount: number; credits: number }) => {
+    setRazorpayQrData(prev => ({ ...prev, loading: true }));
+    try {
+      const res = await fetch('/api/razorpay/qr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: plan.amount === 99 ? 'unlimited' : 'starter',
+          amount: plan.amount,
+          credits: plan.credits,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRazorpayQrData({
+          qrId: data.qrId,
+          orderId: data.orderId,
+          qrImageUrl: data.qrImageUrl,
+          upiDeepLink: data.upiDeepLink,
+          loading: false,
+          mock: data.mock,
+        });
+      } else {
+        setRazorpayQrData(prev => ({ ...prev, loading: false }));
+      }
+    } catch {
+      setRazorpayQrData(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  // Real-time Razorpay payment verification polling
+  useEffect(() => {
+    if (!checkoutModalOpen || !razorpayQrData.qrId) return;
+
+    let isSubscribed = true;
+    const interval = setInterval(async () => {
+      try {
+        const query = new URLSearchParams({
+          qrId: razorpayQrData.qrId || '',
+          orderId: razorpayQrData.orderId || '',
+          plan: selectedPlan.amount === 99 ? 'unlimited' : 'starter',
+          credits: String(selectedPlan.credits),
+        });
+        const res = await fetch(`/api/razorpay/qr/status?${query.toString()}`);
+        const data = await res.json();
+
+        if (isSubscribed && data.paid) {
+          clearInterval(interval);
+          addCredits(selectedPlan.credits);
+          setVerificationFeedback({
+            type: 'success',
+            message: `Payment Confirmed via Razorpay! Ref: ${data.paymentId?.slice(-6) || 'Verified'}. +${selectedPlan.credits} credits activated!`,
+          });
+          triggerConfetti();
+          showToast(`Razorpay Payment Confirmed! +${selectedPlan.credits} credits activated.`);
+          setTimeout(() => {
+            setCheckoutModalOpen(false);
+            setVerificationFeedback({ type: 'idle' });
+          }, 2000);
+        }
+      } catch {
+        // Continue polling
+      }
+    }, 2500);
+
+    return () => {
+      isSubscribed = false;
+      clearInterval(interval);
+    };
+  }, [checkoutModalOpen, razorpayQrData.qrId, razorpayQrData.orderId, selectedPlan]);
+
   const openCheckout = (name: string, price: string, amount: number, planCredits: number) => {
-    setSelectedPlan({ name, price, amount, credits: planCredits });
+    const plan = { name, price, amount, credits: planCredits };
+    setSelectedPlan(plan);
     setUtrNumber('');
     setVerificationFeedback({ type: 'idle' });
     setCheckoutModalOpen(true);
+    fetchRazorpayQr(plan);
   };
 
   const switchPlan = (planType: 'starter' | 'unlimited') => {
-    if (planType === 'starter') {
-      setSelectedPlan({
-        name: 'Shortlist Pass (15 Audits)',
-        price: '₹49',
-        amount: 49,
-        credits: 15,
-      });
-    } else {
-      setSelectedPlan({
-        name: 'Shortlist Unlimited (Monthly)',
-        price: '₹99',
-        amount: 99,
-        credits: 100,
-      });
-    }
+    const plan = planType === 'starter'
+      ? { name: 'Shortlist Pass (15 Audits)', price: '₹49', amount: 49, credits: 15 }
+      : { name: 'Shortlist Unlimited (Monthly)', price: '₹99', amount: 99, credits: 100 };
+    setSelectedPlan(plan);
     setVerificationFeedback({ type: 'idle' });
+    fetchRazorpayQr(plan);
+  };
+
+  const simulateTestPayment = async () => {
+    setIsVerifying(true);
+    setVerificationFeedback({ type: 'loading', message: 'Simulating Razorpay payment capture and signature...' });
+
+    try {
+      const res = await fetch('/api/razorpay/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: razorpayQrData.orderId || `order_sim_${Date.now()}`,
+          razorpay_payment_id: `pay_qr_test_${Date.now()}`,
+          razorpay_signature: 'valid_test_signature',
+          plan: selectedPlan.amount === 99 ? 'unlimited' : 'starter',
+          credits: selectedPlan.credits,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.verified) {
+        addCredits(selectedPlan.credits);
+        setVerificationFeedback({
+          type: 'success',
+          message: `Payment Verified! +${selectedPlan.credits} credits added (Sandbox Mode).`,
+        });
+        triggerConfetti();
+        showToast(`Razorpay Verified! +${selectedPlan.credits} credits activated.`);
+        setTimeout(() => {
+          setCheckoutModalOpen(false);
+          setVerificationFeedback({ type: 'idle' });
+        }, 1800);
+      } else {
+        setVerificationFeedback({ type: 'error', message: data.error || 'Test verification failed.' });
+      }
+    } catch (err: any) {
+      setVerificationFeedback({ type: 'error', message: err.message || 'Error executing test.' });
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const loadRazorpayScript = () => {
@@ -1159,213 +1279,170 @@ Experience:
               </button>
             </div>
 
-            {/* Payment Method Segmented Tabs */}
-            <div className="flex border-b border-[#e5e5ea] mb-4">
-              <button
-                type="button"
-                onClick={() => setPaymentMethodTab('razorpay')}
-                className={`flex-1 pb-2.5 text-xs font-semibold text-center border-b-2 transition-all flex items-center justify-center gap-1.5 ${
-                  paymentMethodTab === 'razorpay'
-                    ? 'border-[#0071e3] text-[#0071e3]'
-                    : 'border-transparent text-[#86868b] hover:text-[#1d1d1f]'
-                }`}
-              >
-                <CreditCard className="w-3.5 h-3.5" />
-                <span>Razorpay (Instant)</span>
-                <span className="text-[9px] bg-blue-100 text-[#0071e3] px-1.5 py-0.2 rounded-full font-bold">Fast</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethodTab('upi')}
-                className={`flex-1 pb-2.5 text-xs font-semibold text-center border-b-2 transition-all flex items-center justify-center gap-1.5 ${
-                  paymentMethodTab === 'upi'
-                    ? 'border-[#1d1d1f] text-[#1d1d1f]'
-                    : 'border-transparent text-[#86868b] hover:text-[#1d1d1f]'
-                }`}
-              >
-                <QrCode className="w-3.5 h-3.5" />
-                <span>Direct UPI QR / Ref</span>
-              </button>
-            </div>
+            {/* Main Razorpay QR Code Centered Payment Experience */}
+            <div className="space-y-4">
+              {/* Dynamic Razorpay QR Card */}
+              <div className="liquid-glass-subtle p-5 rounded-2xl border border-white text-center flex flex-col items-center shadow-xs">
+                <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider block mb-2">
+                  Scan to Pay with Any UPI App
+                </span>
 
-            {/* TAB 1: Razorpay Instant Verification (RECOMMENDED) */}
-            {paymentMethodTab === 'razorpay' && (
-              <div className="space-y-4">
-                {/* Order Summary Box */}
-                <div className="liquid-glass-subtle p-4 rounded-2xl border border-white space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-sm text-[#1d1d1f]">{selectedPlan.name}</h4>
-                      <p className="text-[11px] text-[#86868b]">
-                        {selectedPlan.amount === 99 ? 'Unlimited ATS scans & enhancements for 30 days' : '15 high-signal ATS resume audits'}
-                      </p>
+                {/* QR Code Frame with Razorpay Badge */}
+                <div className="relative bg-white p-3 rounded-2xl border border-[#e5e5ea] shadow-md my-1">
+                  {razorpayQrData.loading ? (
+                    <div className="w-44 h-44 flex flex-col items-center justify-center gap-2 text-[#86868b]">
+                      <Loader2 className="w-8 h-8 animate-spin text-[#0071e3]" />
+                      <span className="text-[11px] font-medium">Generating QR from Razorpay...</span>
                     </div>
-                    <div className="text-right">
-                      <span className="text-2xl font-black text-[#1d1d1f]">{selectedPlan.price}</span>
-                      <span className="text-[10px] text-emerald-600 font-medium block">0% Extra Fee</span>
-                    </div>
-                  </div>
-
-                  {/* Payment Method Logos / Badges */}
-                  <div className="pt-2 border-t border-[#f0f0f2] flex flex-wrap items-center gap-1.5">
-                    <span className="text-[10px] font-medium text-[#86868b] mr-1">Accepted:</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-white border border-[#e5e5ea] text-[#1d1d1f] font-medium shadow-2xs">Google Pay</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-white border border-[#e5e5ea] text-[#1d1d1f] font-medium shadow-2xs">PhonePe</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-white border border-[#e5e5ea] text-[#1d1d1f] font-medium shadow-2xs">Paytm</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-white border border-[#e5e5ea] text-[#1d1d1f] font-medium shadow-2xs">Cards</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-white border border-[#e5e5ea] text-[#1d1d1f] font-medium shadow-2xs">Netbanking</span>
-                  </div>
-                </div>
-
-                {/* Features List */}
-                <div className="space-y-1.5 text-[11px] text-[#1d1d1f] px-1">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Instant automatic verification & immediate credit top-up</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>End-to-end 256-bit cryptographic HMAC verification</span>
-                  </div>
-                </div>
-
-                {/* Terms Agreement */}
-                <div className="flex items-start gap-2 liquid-glass-subtle p-2.5 rounded-xl">
-                  <input 
-                    type="checkbox" 
-                    id="legalAgreementRazorpay" 
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-0.5 rounded border-[#d2d2d7] text-[#0071e3] focus:ring-[#0071e3]"
-                  />
-                  <label htmlFor="legalAgreementRazorpay" className="text-[11px] text-[#86868b] leading-snug">
-                    I agree to the <Link href="/terms" target="_blank" className="text-[#0071e3] underline">Terms of Service</Link>.
-                  </label>
-                </div>
-
-                {/* Main Razorpay Trigger Button */}
-                <button
-                  type="button"
-                  onClick={handleRazorpayCheckout}
-                  disabled={razorpayLoading || isVerifying || !agreedToTerms}
-                  className="apple-btn-primary w-full py-3.5 text-xs font-semibold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99] disabled:opacity-50"
-                >
-                  {razorpayLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>Connecting to Razorpay...</span>
-                    </>
-                  ) : isVerifying ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>Verifying Cryptographic Signature...</span>
-                    </>
                   ) : (
-                    <>
-                      <Lock className="w-3.5 h-3.5 text-white" />
-                      <span>Pay {selectedPlan.price} with Razorpay (Instant Verify)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-
-            {/* TAB 2: Direct UPI QR with Real Server Verification */}
-            {paymentMethodTab === 'upi' && (
-              <div className="space-y-4">
-                {/* QR Code & UPI ID Card */}
-                <div className="liquid-glass-subtle p-4 rounded-2xl text-center flex flex-col items-center">
-                  <span className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider block mb-1">
-                    Scan with any UPI App
-                  </span>
-                  
-                  {/* Real Scannable UPI QR Code */}
-                  <div className="bg-white p-2.5 rounded-2xl border border-white shadow-xs my-2">
                     <img 
-                      src={qrCodeUrl} 
-                      alt="UPI QR Code" 
-                      className="w-32 h-32 object-contain mx-auto"
+                      src={razorpayQrData.qrImageUrl || qrCodeUrl} 
+                      alt="Razorpay UPI QR Code" 
+                      className="w-44 h-44 object-contain mx-auto transition-transform hover:scale-[1.02]"
                     />
-                  </div>
+                  )}
 
-                  <div className="text-2xl font-black tracking-tight text-[#1d1d1f] my-1">
+                  {/* Razorpay Brand Overlay Pill */}
+                  <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#1d1d1f] text-white px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm whitespace-nowrap">
+                    <ShieldCheck className="w-2.5 h-2.5 text-blue-400" />
+                    <span>Razorpay Verified</span>
+                  </div>
+                </div>
+
+                {/* Amount Display */}
+                <div className="mt-4 mb-1">
+                  <div className="text-3xl font-black tracking-tight text-[#1d1d1f]">
                     {selectedPlan.price}
                   </div>
-
-                  {/* Merchant UPI ID with Copy Button */}
-                  <div className="flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-full border border-white text-xs font-mono mt-1 shadow-2xs">
-                    <span className="text-[#1d1d1f] font-semibold">{merchantUpiId}</span>
-                    <button 
-                      type="button"
-                      onClick={() => copyToClipboard(merchantUpiId, 'upi')}
-                      className="text-[#0071e3] hover:underline font-sans text-[11px] ml-1 font-medium"
-                    >
-                      {copiedSection === 'upi' ? 'Copied' : 'Copy'}
-                    </button>
-                  </div>
-
-                  {/* Deep Link Button for Mobile */}
-                  <a
-                    href={upiDeepLink}
-                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#0071e3] bg-white border border-white px-3.5 py-1.5 rounded-full hover:bg-white/80 transition shadow-2xs"
-                  >
-                    <span>Tap to Pay on Mobile UPI App</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <span className="text-[10px] text-emerald-600 font-semibold block">
+                    0% Gateway Fee • Direct Bank Transfer
+                  </span>
                 </div>
 
-                {/* Reference Input for Verification */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-[#1d1d1f] block">
-                    Razorpay Payment ID / 12-Digit UPI UTR:
-                  </label>
-                  <input
-                    type="text"
-                    value={utrNumber}
-                    onChange={(e) => setUtrNumber(e.target.value)}
-                    placeholder="e.g. pay_N2k9b4x or 428190123456"
-                    className="w-full bg-white/90 border border-[#d2d2d7]/80 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#0071e3] font-mono text-[#1d1d1f]"
-                  />
-                  <p className="text-[10px] text-[#86868b] leading-relaxed">
-                    Enter your Razorpay payment ID or bank UTR for automated gateway verification.
-                  </p>
+                {/* Real-Time Payment Detection Radar */}
+                <div className="w-full max-w-xs my-2.5 px-3 py-1.5 rounded-full bg-blue-50/90 border border-blue-200/80 flex items-center justify-center gap-2 text-[#0071e3]">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0071e3] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0071e3]"></span>
+                  </span>
+                  <span className="text-[11px] font-medium">
+                    Listening for payment in real-time...
+                  </span>
                 </div>
 
-                {/* Terms Agreement */}
-                <div className="flex items-start gap-2 liquid-glass-subtle p-2.5 rounded-xl">
-                  <input 
-                    type="checkbox" 
-                    id="legalAgreementUpi" 
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-0.5 rounded border-[#d2d2d7] text-[#1d1d1f] focus:ring-[#1d1d1f]"
-                  />
-                  <label htmlFor="legalAgreementUpi" className="text-[11px] text-[#86868b] leading-snug">
-                    I agree to the <Link href="/terms" target="_blank" className="text-[#0071e3] underline">Terms of Service</Link>.
-                  </label>
+                {/* Supported UPI Apps Row */}
+                <div className="flex flex-wrap items-center justify-center gap-1 text-[10px] text-[#86868b] mt-1">
+                  <span className="font-medium">Google Pay</span> • 
+                  <span className="font-medium">PhonePe</span> • 
+                  <span className="font-medium">Paytm</span> • 
+                  <span className="font-medium">BHIM</span> • 
+                  <span className="font-medium">Cred</span> • 
+                  <span className="font-medium">All Banks</span>
                 </div>
 
-                {/* Verify Manual Payment Button */}
+                {/* Mobile Deep Link: Tap to Pay on Mobile */}
+                <a
+                  href={razorpayQrData.upiDeepLink || upiDeepLink}
+                  className="mt-3.5 w-full py-2.5 px-4 rounded-xl bg-white border border-[#d2d2d7] text-xs font-semibold text-[#0071e3] hover:bg-white/80 transition flex items-center justify-center gap-1.5 shadow-2xs"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Tap to Pay on Mobile UPI App</span>
+                  <ExternalLink className="w-3 h-3 text-[#86868b]" />
+                </a>
+              </div>
+
+              {/* Pay with Cards / NetBanking / Razorpay Modal Trigger */}
+              <button
+                type="button"
+                onClick={handleRazorpayCheckout}
+                disabled={razorpayLoading || isVerifying || !agreedToTerms}
+                className="apple-btn-primary w-full py-3.5 text-xs font-semibold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99] disabled:opacity-50"
+              >
+                {razorpayLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Connecting to Razorpay...</span>
+                  </>
+                ) : isVerifying ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Verifying Payment...</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-3.5 h-3.5 text-white" />
+                    <span>Or Pay with Card / NetBanking (Razorpay Popup)</span>
+                  </>
+                )}
+              </button>
+
+              {/* Sandbox Test Simulator Trigger */}
+              <button
+                type="button"
+                onClick={simulateTestPayment}
+                disabled={isVerifying}
+                className="w-full py-2 px-3 rounded-xl border border-dashed border-[#0071e3]/40 text-[#0071e3] hover:bg-blue-50/50 text-[11px] font-semibold transition flex items-center justify-center gap-1.5"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Simulate Instant Payment (Sandbox Test)</span>
+              </button>
+
+              {/* Collapsible Manual Reference Check */}
+              <div className="pt-2 border-t border-[#e5e5ea]/80">
                 <button
                   type="button"
-                  onClick={verifyManualPayment}
-                  disabled={isVerifying || !agreedToTerms || !utrNumber.trim()}
-                  className="apple-btn-dark w-full py-3 text-xs flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                  onClick={() => setShowManualRefInput(!showManualRefInput)}
+                  className="text-[11px] text-[#86868b] hover:text-[#1d1d1f] flex items-center justify-between w-full py-1 font-medium"
                 >
-                  {isVerifying ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>Verifying with Razorpay...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                      <span>Verify Payment ({selectedPlan.price})</span>
-                    </>
-                  )}
+                  <span>Already paid? Verify Razorpay Payment ID or UPI Ref (UTR)</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showManualRefInput ? 'rotate-180' : ''}`} />
                 </button>
+
+                {showManualRefInput && (
+                  <div className="mt-2 space-y-2 animate-appleScale">
+                    <input
+                      type="text"
+                      value={utrNumber}
+                      onChange={(e) => setUtrNumber(e.target.value)}
+                      placeholder="e.g. pay_N2k9b4x or 428190123456"
+                      className="w-full bg-white/90 border border-[#d2d2d7]/80 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#0071e3] font-mono text-[#1d1d1f]"
+                    />
+                    <button
+                      type="button"
+                      onClick={verifyManualPayment}
+                      disabled={isVerifying || !utrNumber.trim()}
+                      className="apple-btn-dark w-full py-2.5 text-xs flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                    >
+                      {isVerifying ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                          <span>Verifying with Razorpay...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Verify Reference Number</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Terms Agreement */}
+              <div className="flex items-start gap-2 liquid-glass-subtle p-2.5 rounded-xl">
+                <input 
+                  type="checkbox" 
+                  id="legalAgreementRazorpay" 
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-0.5 rounded border-[#d2d2d7] text-[#0071e3] focus:ring-[#0071e3]"
+                />
+                <label htmlFor="legalAgreementRazorpay" className="text-[11px] text-[#86868b] leading-snug">
+                  I agree to the <Link href="/terms" target="_blank" className="text-[#0071e3] underline">Terms of Service</Link>.
+                </label>
+              </div>
+            </div>
 
             {/* Verification Status Feedback Alert */}
             {verificationFeedback.type !== 'idle' && (
