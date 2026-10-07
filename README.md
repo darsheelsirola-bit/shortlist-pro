@@ -4,6 +4,7 @@
 
 [![Live Production](https://img.shields.io/badge/Live%20Website-craftats--ai.vercel.app-0071e3?style=for-the-badge&logo=vercel&logoColor=white)](https://craftats-ai.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20&%20DB-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
 
@@ -30,24 +31,39 @@
 - **Ambient Chromatic Light Orbs**: Floating fluid gradients behind translucent cards that refract gently on scroll.
 - **Apple Health Activity Gauge**: Interactive circular gauge visualizing real-time ATS match scoring from 0% to 100%.
 
-### 🎯 2. Deterministic ATS Optimization Engine
+### 🔐 2. Complete Supabase Backend Authentication
+- **Full Supabase Integration**: Built on `@supabase/supabase-js` with token session persistence.
+- **Sign in with Google**: 1-click Google OAuth authentication with redirect callback exchange.
+- **Sign in with GitHub**: 1-click GitHub OAuth authentication for software engineers & tech leaders.
+- **Email & Password Authentication**: Instant signup & signin with 5 free welcome credits on signup.
+- **Instant Guest Mode**: 1-click demo access for recruiters and candidates to test the workstation immediately without forced friction.
+
+### 🔍 3. Google Search Discoverability & Production SEO
+- **Dynamic Sitemap (`/sitemap.xml`)**: Automated Next.js `app/sitemap.ts` mapping all canonical pages with update priorities.
+- **Search Engine Directive (`/robots.txt`)**: Automated `app/robots.ts` directing Googlebot and Bingbot to index all public routes.
+- **JSON-LD Schema.org Structured Data**:
+  - `WebApplication` / `SoftwareApplication` entity with 4.9/5 aggregate user rating.
+  - `FAQPage` rich snippet schema triggering Google expandable search card questions.
+  - `Organization` and `WebSite` metadata linking site entities.
+- **OpenGraph & Twitter Cards**: High-resolution social previews for LinkedIn, Twitter, and iMessage.
+
+### 🎯 4. Deterministic ATS Optimization Engine
 - **Exact Keyword Gap Analysis**: Scans input job descriptions for hard skills, technical competencies, and domain keywords; calculates true mathematical match ratios.
 - **Google X-Y-Z Bullet Re-Writer**: Transforms passive bullets into high-impact accomplishments using Google's formula: *"Accomplished [X], as measured by [Y], by doing [Z]"*.
 - **Interactive Before & After Diff**: Side-by-side comparison tab highlighting upgraded metrics and quantified impact.
 - **Click-to-Insert Keyword Badges**: Single-tap insertion of missing skills directly into the resume draft.
 - **1-Click Plain-Text Export**: Generates and downloads a clean, ATS-safe `.txt` resume that parses without formatting errors on Workday, Greenhouse, Taleo, and Lever.
 
-### ⚡ 3. Automated Razorpay Verification & Direct UPI
+### ⚡ 5. Automated Razorpay Verification & Direct UPI
 - **Automated Razorpay Gateway Verification**: Cryptographic HMAC-SHA256 signature verification via `/api/razorpay/verify` guarantees zero forged or unverified payments.
 - **Instant Credit Activation**: Automatic activation immediately upon checkout completion across Google Pay, PhonePe, Paytm, BHIM, RuPay/Visa/Mastercard cards, and Netbanking.
 - **Direct VPA-to-VPA Transfer Option**: Direct UPI option with QR code to **`darsheel.sirola@fam`** with gateway verification.
 - **Dynamic Scannable QR Code**: Generates instant QR codes pre-encoded with the selected amount and receiving VPA.
-- **1-Tap Mobile Deep Link**: Supports instant checkout in Google Pay, PhonePe, Paytm, BHIM, and Cred.
 - **Ultra-Affordable INR Micro-Pricing**:
   - **₹49** one-time: 15 full ATS Audits (~₹3.20/audit)
   - **₹99 / month**: Unlimited Pro access
 
-### 🛡️ 4. Comprehensive Legal Shield
+### 🛡️ 6. Comprehensive Legal Shield
 - **[Terms of Service](./app/terms/page.tsx)**:
   - Capped maximum liability strictly at ₹99.00 INR.
   - Explicit "No Employment Guarantee" disclaimer protecting against hiring outcome claims.
@@ -56,12 +72,48 @@
 - **[Privacy Policy](./app/privacy/page.tsx)**:
   - Ephemeral data processing disclosures with strict "No Data Selling" pledge.
 
-### 🎬 5. Interactive Video Advertising Studio (`/promo`)
+### 🎬 7. Interactive Video Advertising Studio (`/promo`)
 - In-app 9:16 vertical Reel/Short and 16:9 landscape motion graphics video generator.
 - Native browser `MediaRecorder` + HTML5 Canvas video export (`.webm`) at 1080x1920.
 - Web Audio API synthesizer generating real-time cinematic bass booms, chimes, and radar sound effects.
-- Browser `SpeechSynthesis` voiceover synchronization.
-- 1-click viral Instagram, YouTube Shorts, and LinkedIn marketing copy kits.
+
+---
+
+## 🛠️ Supabase Configuration Guide
+
+To connect your own Supabase project:
+
+1. **Create a free project** on [Supabase](https://supabase.com).
+2. Go to **Project Settings** -> **API** and copy:
+   - `Project URL` -> Set as `NEXT_PUBLIC_SUPABASE_URL`
+   - `anon / public key` -> Set as `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. In **Authentication** -> **URL Configuration**:
+   - Set **Site URL** to: `https://craftats-ai.vercel.app` (or your domain)
+   - Add **Redirect URL**: `https://craftats-ai.vercel.app/auth/callback` and `http://localhost:3000/auth/callback`
+4. Enable **Google Provider**:
+   - Go to **Authentication** -> **Providers** -> **Google**.
+   - Paste your Google Cloud OAuth Client ID & Secret.
+5. Enable **GitHub Provider**:
+   - Go to **Authentication** -> **Providers** -> **GitHub**.
+   - Create a GitHub OAuth App in GitHub Developer Settings and paste Client ID & Client Secret.
+
+---
+
+## 🔍 How to Get Shortlist Indexed on Google Search
+
+Shortlist is configured with full search engine discoverability. To get indexed immediately by Google:
+
+1. **Open Google Search Console**:
+   - Visit [search.google.com/search-console](https://search.google.com/search-console).
+   - Enter your domain or URL prefix: `https://craftats-ai.vercel.app`.
+2. **Verify Ownership**:
+   - Copy the HTML tag verification token (`content="XXXX"`).
+   - Add it to your Vercel Environment Variables as `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION="XXXX"`.
+3. **Submit Sitemap**:
+   - Under the **Sitemaps** section in Google Search Console, submit `sitemap.xml`.
+   - Googlebot will immediately crawl `/`, `/app`, `/pricing`, `/login`, and `/signup`.
+4. **URL Inspection**:
+   - Paste `https://craftats-ai.vercel.app` in the top search bar and click **Request Indexing**.
 
 ---
 
@@ -76,14 +128,21 @@ shortlist-pro/
 │   ├── api/
 │   │   ├── checkout/
 │   │   │   └── route.ts       # Stripe fallback checkout route
+│   │   ├── razorpay/
+│   │   │   ├── order/         # Razorpay order generation
+│   │   │   ├── verify/        # HMAC-SHA256 signature verification
+│   │   │   └── qr/            # Dynamic UPI QR generation & status
 │   │   └── tailor/
 │   │       └── route.ts       # Deterministic ATS keyword analyzer & re-writer
 │   ├── app/
 │   │   └── page.tsx           # Dedicated Executive ATS Workstation & UPI modal
+│   ├── auth/
+│   │   └── callback/
+│   │       └── route.ts       # Supabase OAuth token exchange callback
 │   ├── login/
-│   │   └── page.tsx           # Apple-style Sign In with 1-click Demo access
+│   │   └── page.tsx           # Google, GitHub & Email Sign In
 │   ├── signup/
-│   │   └── page.tsx           # Apple-style Account Registration (+5 Free Credits)
+│   │   └── page.tsx           # Google, GitHub & Email Registration (+5 Free Credits)
 │   ├── privacy/
 │   │   └── page.tsx           # Privacy Policy with ephemeral processing disclosures
 │   ├── promo/
@@ -91,20 +150,21 @@ shortlist-pro/
 │   ├── terms/
 │   │   └── page.tsx           # Terms of Service & legal liability shield
 │   ├── globals.css            # VisionOS liquid glass, Apple styling & typography
-│   ├── layout.tsx             # Root layout, Google Fonts (Inter), AuthProvider
+│   ├── layout.tsx             # Root layout, SEO metadata, JSON-LD schema, AuthProvider
+│   ├── robots.ts              # Robots.txt crawler directives
+│   ├── sitemap.ts             # Dynamic XML sitemap generator
 │   └── page.tsx               # Dedicated Apple-style Product Landing Page
 ├── components/
-│   ├── AuthContext.tsx        # Persistent client session & credits state
+│   ├── AuthContext.tsx        # Persistent Supabase session & credits state
 │   └── Logo.tsx               # Scalable Apple-style SVG monogram logo
+├── lib/
+│   └── supabase.ts            # Supabase client singleton with build fallback
 ├── public/
 │   └── shortlist_ad_poster.jpg # 9:16 vertical advertisement artwork
 ├── .env.example               # Environment variables template
 ├── .gitignore                 # Next.js & Node.js ignore rules
 ├── LICENSE                    # MIT License
-├── next.config.mjs            # Next.js build configuration
 ├── package.json               # Dependencies & project scripts
-├── postcss.config.js          # PostCSS configuration
-├── tailwind.config.js         # Tailwind theme, keyframes & font settings
 └── tsconfig.json              # TypeScript configuration
 ```
 
@@ -113,7 +173,7 @@ shortlist-pro/
 ## 🚀 Getting Started Locally
 
 ### Prerequisites
-- **Node.js**: v18.17.0 or newer (tested on Node.js v20 and v24)
+- **Node.js**: v18.17.0 or newer
 - **npm**: v9 or newer
 
 ### Installation
@@ -133,7 +193,6 @@ shortlist-pro/
    ```bash
    cp .env.example .env.local
    ```
-   *(Optional: Set your own `NEXT_PUBLIC_MERCHANT_UPI_ID` if changing the receiving UPI address).*
 
 4. **Start the development server:**
    ```bash
@@ -154,7 +213,9 @@ This application is built with Next.js App Router and deploys to **Vercel** with
    git push origin main
    ```
 2. Connect your repository on [vercel.com](https://vercel.com/new).
-3. Add the production environment variable:
+3. Add production environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`: (your Supabase URL)
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: (your Supabase anon key)
    - `NEXT_PUBLIC_MERCHANT_UPI_ID`: `darsheel.sirola@fam`
 4. Deploy! Your site will be live globally with automatic SSL.
 
@@ -163,8 +224,6 @@ This application is built with Next.js App Router and deploys to **Vercel** with
 ## 📜 License
 
 Distributed under the **MIT License**. See [`LICENSE`](./LICENSE) for more information.
-
----
 
 <div align="center">
   <sub>Designed for candidate excellence. Built with precision for <strong>SHORTLIST</strong>.</sub>
