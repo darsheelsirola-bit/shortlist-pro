@@ -54,7 +54,7 @@ const SCENES: Scene[] = [
   {
     id: 3,
     duration: 5.5,
-    title: 'Meet SHORTLIST.',
+    title: 'Meet Shortlist.',
     subtitle: 'Watch your match score jump from 34% to 96% with Google X-Y-Z bullet rewrites.',
     voiceoverText: 'That is why we built Shortlist. In two seconds, it audits your resume against any job description, fixes missing keywords, and rewrites your bullets with executive impact.'
   },
@@ -886,7 +886,7 @@ export default function PromoVideoPage() {
 It’s NOT your experience. It’s the ATS algorithm.
 Algorithms filter out your resume before human recruiters ever lay eyes on it.
 
-We built SHORTLIST to fix this.
+We built Shortlist to fix this.
 ✅ 1-click ATS Keyword Gap Audit
 ✅ Google X-Y-Z Quantified Bullet Rewrites
 ✅ Boost your match score from 34% to 94%+

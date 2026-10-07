@@ -354,7 +354,7 @@ Experience:
     const element = document.createElement('a');
     const file = new Blob([result.fullOptimizedResume], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = 'SHORTLIST_Optimized_Resume.txt';
+    element.download = 'Shortlist_Optimized_Resume.txt';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -1471,7 +1471,7 @@ Experience:
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-[#d2d2d7] py-6 px-6 text-xs text-[#86868b] text-center">
-        <span>SHORTLIST Executive Workstation • Direct UPI payments to <strong>{merchantUpiId}</strong> • </span>
+        <span>Shortlist Executive Workstation • Direct UPI payments to <strong>{merchantUpiId}</strong> • </span>
         <Link href="/terms" className="hover:underline">Terms</Link> • <Link href="/privacy" className="hover:underline">Privacy</Link>
       </footer>
     </div>

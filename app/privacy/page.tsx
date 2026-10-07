@@ -4,7 +4,7 @@ import Logo from '@/components/Logo';
 import { ArrowLeft, Lock } from 'lucide-react';
 
 export const metadata = {
-  title: 'Privacy Policy — SHORTLIST',
+  title: 'Privacy Policy — Shortlist',
   description: 'Privacy Policy and Data Protection standards for Shortlist.',
 };
 

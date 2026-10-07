@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'SHORTLIST — Get on the Shortlist with Precision ATS Optimization',
+  title: 'Shortlist — Get on the Shortlist with Precision ATS Optimization',
   description: 'Every job opening receives 250+ resumes. Only 5 get shortlisted. Shortlist audits your resume against target ATS algorithms and upgrades your metrics to guarantee recruiter visibility.',
 };
 

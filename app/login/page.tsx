@@ -78,7 +78,7 @@ export default function LoginPage() {
           className="inline-flex items-center gap-2 text-xs font-medium text-[#86868b] hover:text-[#1d1d1f] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to SHORTLIST</span>
+          <span>Back to Shortlist</span>
         </Link>
         <Logo size="sm" showTagline={false} />
       </header>
@@ -95,7 +95,7 @@ export default function LoginPage() {
               Welcome Back
             </h1>
             <p className="text-xs sm:text-sm text-[#86868b]">
-              Sign in to your SHORTLIST Executive Workstation
+              Sign in to your Shortlist Executive Workstation
             </p>
           </div>
 

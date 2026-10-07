@@ -4,7 +4,7 @@ import Logo from '@/components/Logo';
 import { ArrowLeft, Scale } from 'lucide-react';
 
 export const metadata = {
-  title: 'Terms of Service — SHORTLIST',
+  title: 'Terms of Service — Shortlist',
   description: 'Terms of Service, Legal Disclaimers, and Limitation of Liability for Shortlist.',
 };
 

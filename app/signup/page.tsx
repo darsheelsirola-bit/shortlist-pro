@@ -73,7 +73,7 @@ export default function SignupPage() {
           className="inline-flex items-center gap-2 text-xs font-medium text-[#86868b] hover:text-[#1d1d1f] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to SHORTLIST</span>
+          <span>Back to Shortlist</span>
         </Link>
         <Logo size="sm" showTagline={false} />
       </header>

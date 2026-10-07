@@ -134,7 +134,7 @@ export default function LandingPage() {
 
         <p className="text-base sm:text-xl text-[#86868b] max-w-2xl mx-auto font-normal leading-relaxed mb-8">
           Over 75% of qualified resumes are rejected within 3 seconds by applicant tracking bots. 
-          SHORTLIST audits your resume against corporate algorithms and transforms your bullet points into quantifiable executive achievements.
+          Shortlist audits your resume against corporate algorithms and transforms your bullet points into quantifiable executive achievements.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3.5 mb-14">
@@ -205,7 +205,7 @@ export default function LandingPage() {
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-3xl font-black text-[#1d1d1f]">{currentDemo.scoreAfter}%</span>
-                  <span className="text-[9px] uppercase font-bold text-[#34c759] tracking-wider">SHORTLIST MATCH</span>
+                  <span className="text-[9px] uppercase font-bold text-[#34c759] tracking-wider">Shortlist Match</span>
                 </div>
               </div>
               <span className="text-xs text-[#86868b]">
@@ -226,7 +226,7 @@ export default function LandingPage() {
 
               <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-500/25 space-y-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">
-                  SHORTLIST Upgrade (Google X-Y-Z Formula)
+                  Shortlist Upgrade (Google X-Y-Z Formula)
                 </span>
                 <p className="text-xs text-[#1d1d1f] font-medium leading-relaxed">
                   {currentDemo.afterBullet}
@@ -286,7 +286,7 @@ export default function LandingPage() {
             The 30-Second Workflow
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
-            How SHORTLIST Works
+            How Shortlist Works
           </h2>
           <p className="text-sm text-[#86868b]">
             Three automated stages designed to bypass algorithmic filters and impress hiring managers.
@@ -333,7 +333,7 @@ export default function LandingPage() {
             Engineered For Precision
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
-            Everything Built Into SHORTLIST
+            Everything Built Into Shortlist
           </h2>
         </div>
 
@@ -387,10 +387,10 @@ export default function LandingPage() {
             Engineered Beyond Generic Tools
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1d1d1f]">
-            Why SHORTLIST Outperforms ChatGPT & Legacy Builders
+            Why Shortlist Outperforms ChatGPT & Legacy Builders
           </h2>
           <p className="text-sm text-[#86868b]">
-            Generic AI models generate vague filler text that ATS bots reject. SHORTLIST is architected specifically for corporate algorithmic filters.
+            Generic AI models generate vague filler text that ATS bots reject. Shortlist is architected specifically for corporate algorithmic filters.
           </p>
         </div>
 
@@ -402,7 +402,7 @@ export default function LandingPage() {
                   <th className="p-4 sm:p-5 font-semibold text-[#1d1d1f]">Evaluation Standard</th>
                   <th className="p-4 sm:p-5 font-bold text-[#0071e3] bg-blue-50/60">
                     <div className="flex items-center gap-1.5">
-                      <span>SHORTLIST</span>
+                      <span>Shortlist</span>
                       <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#0071e3] text-white font-semibold">PRECISION</span>
                     </div>
                   </th>
@@ -696,7 +696,7 @@ export default function LandingPage() {
               href="/app"
               className="apple-btn-primary px-8 py-3.5 text-sm font-semibold flex items-center gap-2 shadow-md hover:scale-[1.02] transition-transform"
             >
-              <span>Launch SHORTLIST Workstation</span>
+              <span>Launch Shortlist Workstation</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
